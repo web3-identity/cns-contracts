@@ -39,7 +39,7 @@ contract NameWrapper is
     mapping(bytes32 => bytes) public override names;
 
     bytes32 private constant ETH_NODE =
-        0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae;
+        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb; // eth -> web3
     bytes32 private constant ROOT_NODE =
         0x0000000000000000000000000000000000000000000000000000000000000000;
 
@@ -70,7 +70,7 @@ contract NameWrapper is
             MAX_EXPIRY
         );
         names[ROOT_NODE] = "\x00";
-        names[ETH_NODE] = "\x03eth\x00";
+        names[ETH_NODE] = "\x03web3\x00"; // eth -> web3
     }
 
     function supportsInterface(bytes4 interfaceId)

@@ -1,26 +1,44 @@
-pragma solidity >=0.8.4;
+//SPDX-License-Identifier: MIT
+pragma solidity ~0.8.17;
 
-import "@ensdomains/ens-contracts/contracts/ethregistrar/BaseRegistrarImplementation.sol";
-import "@ensdomains/ens-contracts/contracts/ethregistrar/StringUtils.sol";
-import "@ensdomains/ens-contracts/contracts/resolvers/Resolver.sol";
-import "@ensdomains/ens-contracts/contracts/registry/ReverseRegistrar.sol";
-import "@ensdomains/ens-contracts/contracts/ethregistrar/IETHRegistrarController.sol";
-import "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
+import {BaseRegistrarImplementation} from "@ensdomains/ens-contracts/contracts/ethregistrar/BaseRegistrarImplementation.sol";
+import {StringUtils} from "@ensdomains/ens-contracts/contracts/ethregistrar/StringUtils.sol";
+import {Resolver} from "@ensdomains/ens-contracts/contracts/resolvers/Resolver.sol";
+import {ReverseRegistrar} from "@ensdomains/ens-contracts/contracts/registry/ReverseRegistrar.sol";
+import {IETHRegistrarController, IPriceOracle} from "@ensdomains/ens-contracts/contracts/ethregistrar/IETHRegistrarController.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {INameWrapper} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
+import {ERC20Recoverable} from "@ensdomains/ens-contracts/contracts/utils/ERC20Recoverable.sol";
+
+error CommitmentTooNew(bytes32 commitment);
+error CommitmentTooOld(bytes32 commitment);
+error NameNotAvailable(string name);
+error DurationTooShort(uint256 duration);
+error ResolverRequiredWhenDataSupplied();
+error UnexpiredCommitmentExists(bytes32 commitment);
+error InsufficientValue();
+error Unauthorised(bytes32 node);
+error MaxCommitmentAgeTooLow();
+error MaxCommitmentAgeTooHigh();
 
 /**
  * @dev A registrar controller for registering and renewing names at fixed cost.
  */
-contract WEB3RegistrarController is Ownable, IETHRegistrarController {
+contract ETHRegistrarController is
+    Ownable,
+    IETHRegistrarController,
+    IERC165,
+    ERC20Recoverable
+{
     using StringUtils for *;
     using Address for address;
 
     uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
-    bytes32 private constant WEB3_NODE =
-        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb; // eth -> web3
+    bytes32 private constant ETH_NODE =
+        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // eth -> web3
     uint64 private constant MAX_EXPIRY = type(uint64).max;
     BaseRegistrarImplementation immutable base;
     IPriceOracle public immutable prices;
@@ -54,8 +72,13 @@ contract WEB3RegistrarController is Ownable, IETHRegistrarController {
         ReverseRegistrar _reverseRegistrar,
         INameWrapper _nameWrapper
     ) {
-        require(_maxCommitmentAge > _minCommitmentAge);
-        require(_maxCommitmentAge < block.timestamp);
+        if (_maxCommitmentAge <= _minCommitmentAge) {
+            revert MaxCommitmentAgeTooLow();
+        }
+
+        if (_maxCommitmentAge > block.timestamp) {
+            revert MaxCommitmentAgeTooHigh();
+        }
 
         base = _base;
         prices = _prices;
@@ -96,11 +119,8 @@ contract WEB3RegistrarController is Ownable, IETHRegistrarController {
         uint64 wrapperExpiry
     ) public pure override returns (bytes32) {
         bytes32 label = keccak256(bytes(name));
-        if (data.length > 0) {
-            require(
-                resolver != address(0),
-                "WEB3RegistrarController: resolver is required when data is supplied"
-            );
+        if (data.length > 0 && resolver == address(0)) {
+            revert ResolverRequiredWhenDataSupplied();
         }
         return
             keccak256(
@@ -119,7 +139,9 @@ contract WEB3RegistrarController is Ownable, IETHRegistrarController {
     }
 
     function commit(bytes32 commitment) public override {
-        require(commitments[commitment] + maxCommitmentAge < block.timestamp);
+        if (commitments[commitment] + maxCommitmentAge >= block.timestamp) {
+            revert UnexpiredCommitmentExists(commitment);
+        }
         commitments[commitment] = block.timestamp;
     }
 
@@ -135,10 +157,9 @@ contract WEB3RegistrarController is Ownable, IETHRegistrarController {
         uint64 wrapperExpiry
     ) public payable override {
         IPriceOracle.Price memory price = rentPrice(name, duration);
-        require(
-            msg.value >= (price.base + price.premium),
-            "WEB3RegistrarController: Not enough ether provided"
-        );
+        if (msg.value < price.base + price.premium) {
+            revert InsufficientValue();
+        }
 
         _consumeCommitment(
             name,
@@ -204,11 +225,10 @@ contract WEB3RegistrarController is Ownable, IETHRegistrarController {
         uint64 wrapperExpiry
     ) external payable {
         bytes32 labelhash = keccak256(bytes(name));
-        bytes32 nodehash = keccak256(abi.encodePacked(WEB3_NODE, labelhash));
-        require(
-            nameWrapper.isTokenOwnerOrApproved(nodehash, msg.sender),
-            "Only token owner or approved owner can renew with fuses"
-        );
+        bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
+        if (!nameWrapper.isTokenOwnerOrApproved(nodehash, msg.sender)) {
+            revert Unauthorised(nodehash);
+        }
         _renew(name, duration, fuses, wrapperExpiry);
     }
 
@@ -219,13 +239,12 @@ contract WEB3RegistrarController is Ownable, IETHRegistrarController {
         uint64 wrapperExpiry
     ) internal {
         bytes32 labelhash = keccak256(bytes(name));
-        bytes32 nodehash = keccak256(abi.encodePacked(WEB3_NODE, labelhash));
+        bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
         uint256 tokenId = uint256(labelhash);
         IPriceOracle.Price memory price = rentPrice(name, duration);
-        require(
-            msg.value >= price.base,
-            "WEB3Controller: Not enough CFX provided for renewal"
-        );
+        if (msg.value < price.base) {
+            revert InsufficientValue();
+        }
         uint256 expires;
         if (nameWrapper.isWrapped(nodehash)) {
             expires = nameWrapper.renew(
@@ -267,21 +286,23 @@ contract WEB3RegistrarController is Ownable, IETHRegistrarController {
         bytes32 commitment
     ) internal {
         // Require an old enough commitment.
-        require(
-            commitments[commitment] + minCommitmentAge <= block.timestamp,
-            "WEB3RegistrarController: Commitment is not valid"
-        );
+        if (commitments[commitment] + minCommitmentAge > block.timestamp) {
+            revert CommitmentTooNew(commitment);
+        }
 
         // If the commitment is too old, or the name is registered, stop
-        require(
-            commitments[commitment] + maxCommitmentAge > block.timestamp,
-            "WEB3RegistrarController: Commitment has expired"
-        );
-        require(available(name), "WEB3RegistrarController: Name is unavailable");
+        if (commitments[commitment] + maxCommitmentAge <= block.timestamp) {
+            revert CommitmentTooOld(commitment);
+        }
+        if (!available(name)) {
+            revert NameNotAvailable(name);
+        }
 
         delete (commitments[commitment]);
 
-        require(duration >= MIN_REGISTRATION_DURATION);
+        if (duration < MIN_REGISTRATION_DURATION) {
+            revert DurationTooShort(duration);
+        }
     }
 
     function _setRecords(
@@ -290,7 +311,7 @@ contract WEB3RegistrarController is Ownable, IETHRegistrarController {
         bytes[] calldata data
     ) internal {
         // use hardcoded .eth namehash
-        bytes32 nodehash = keccak256(abi.encodePacked(WEB3_NODE, label));
+        bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, label));
         Resolver resolver = Resolver(resolverAddress);
         resolver.multicallWithNodeCheck(nodehash, data);
     }
