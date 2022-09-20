@@ -3,7 +3,6 @@ pragma solidity ~0.8.17;
 
 import {ERC1155Fuse, IERC165, OperationProhibited} from "@ensdomains/ens-contracts/contracts/wrapper/ERC1155Fuse.sol";
 import {Controllable} from "@ensdomains/ens-contracts/contracts/wrapper/Controllable.sol";
-import {INameWrapper, CANNOT_UNWRAP, CANNOT_BURN_FUSES, CANNOT_TRANSFER, CANNOT_SET_RESOLVER, CANNOT_SET_TTL, CANNOT_CREATE_SUBDOMAIN, PARENT_CANNOT_CONTROL, CAN_DO_EVERYTHING} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
 import {INameWrapperUpgrade} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapperUpgrade.sol";
 import {IMetadataService} from "@ensdomains/ens-contracts/contracts/wrapper/IMetadataService.sol";
 import {ENS} from "@ensdomains/ens-contracts/contracts/registry/ENS.sol";
@@ -12,6 +11,17 @@ import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Recei
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {BytesUtils} from "@ensdomains/ens-contracts/contracts/wrapper/BytesUtils.sol";
 import {ERC20Recoverable} from "@ensdomains/ens-contracts/contracts/utils/ERC20Recoverable.sol";
+import {
+  INameWrapper, 
+  CANNOT_UNWRAP, 
+  CANNOT_BURN_FUSES, 
+  CANNOT_TRANSFER, 
+  CANNOT_SET_RESOLVER, 
+  CANNOT_SET_TTL, 
+  CANNOT_CREATE_SUBDOMAIN, 
+  PARENT_CANNOT_CONTROL, 
+  CAN_DO_EVERYTHING
+} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
 
 error Unauthorised(bytes32 node, address addr);
 error NameNotFound();

@@ -10,6 +10,8 @@ contract Lock {
 
     event Withdrawal(uint amount, uint when);
 
+    event NewPriceOracle(address indexed oracle);
+
     constructor(uint _unlockTime) payable {
         require(
             block.timestamp < _unlockTime,
