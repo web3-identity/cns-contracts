@@ -45,7 +45,7 @@
 
 "@ensdomains/ens-contracts@ensdomains/ens-contracts":
   version "0.0.9"
-  resolved "https://codeload.github.com/ensdomains/ens-contracts/tar.gz/1b6b4b59003cceb045634d84ab63ae9bc2c0f8c2"
+  resolved "https://codeload.github.com/ensdomains/ens-contracts/tar.gz/4c00b8b3246ae14b0c1b8c9b6f457c9242f0350f"
   dependencies:
     "@ensdomains/buffer" "^0.0.13"
     "@ensdomains/solsha1" "0.0.3"
@@ -656,7 +656,7 @@
     deep-eql "^4.0.1"
     ordinal "^1.0.3"
 
-"@nomicfoundation/hardhat-network-helpers@^1.0.0":
+"@nomicfoundation/hardhat-network-helpers@^1.0.6":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@nomicfoundation/hardhat-network-helpers/-/hardhat-network-helpers-1.0.6.tgz#5e2026ddde5ca539f70a2bf498528afd08bd0827"
   integrity sha512-a35iVD4ycF6AoTfllAnKm96IPIzzHpgKX/ep4oKc2bsUKFfMlacWdyntgC/7d5blyCTXfFssgNAvXDZfzNWVGQ==
@@ -3955,6 +3955,13 @@ idna-uts46-hx@^2.3.1:
   integrity sha512-PWoF9Keq6laYdIRwwCdhTPl60xRqAloYNMQLiyUnG42VjT53oW07BXIRM+NK7eQjzXjAk2gUvX9caRxlnF9TAA==
   dependencies:
     punycode "2.1.0"
+
+idna-uts46-hx@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/idna-uts46-hx/-/idna-uts46-hx-4.0.4.tgz#790532a8f2bf20739dd483b315f39b316eb47bcc"
+  integrity sha512-PxPsDfwG0sojzTnllzR0vXDOJWw04L8YKWaUxedrWyj1MzzqTd+UOgJBSnArihK+99zDZk5Rma7x+7jOkCuFiQ==
+  dependencies:
+    punycode "^2.1.1"
 
 ieee754@^1.1.13, ieee754@^1.2.1:
   version "1.2.1"

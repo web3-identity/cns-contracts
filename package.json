@@ -13,7 +13,7 @@
     "@ethersproject/abi": "^5.4.7",
     "@ethersproject/providers": "^5.4.7",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "@nomiclabs/hardhat-ethers": "^2.0.0",
     "@nomiclabs/hardhat-etherscan": "^3.0.0",
@@ -36,6 +36,7 @@
     "@ensdomains/ens-contracts": "ensdomains/ens-contracts",
     "@openzeppelin/contracts": "^4.7.3",
     "dotenv": "^16.0.2",
+    "idna-uts46-hx": "^4.0.4",
     "js-conflux-sdk": "^2.1.6",
     "solidity-stringutils": "web3ns/solidity-stringutils"
   }

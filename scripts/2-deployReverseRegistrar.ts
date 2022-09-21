@@ -13,7 +13,7 @@ async function main() {
     from: accounts[0].address,
   }).executed();
   
-  logReceipt(receipt);
+  logReceipt(receipt, 'ReverseRegistrar');
 }
 
 main().catch(console.log);

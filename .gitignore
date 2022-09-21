@@ -9,3 +9,6 @@ typechain-types
 cache
 artifacts
 tmp
+SDK
+scripts/sdk
+scripts/setup/test.ts

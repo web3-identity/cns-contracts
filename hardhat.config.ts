@@ -7,10 +7,13 @@ dotenv.config()
 const config: HardhatUserConfig = {
   solidity: "0.8.17",
   networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true,
+    },
     cfxtest: {
-      url: 'https://test.confluxrpc.com',
+      url: process.env.RPC_URL,
       accounts: [process.env.PRIVATE_KEY as string],
-      chainId: 1,
+      chainId: Number(process.env.NETWORK_ID as unknown as number),
     }
   }
 };

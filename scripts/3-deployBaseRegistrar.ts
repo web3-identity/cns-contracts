@@ -15,7 +15,7 @@ async function main() {
     from: accounts[0].address,
   }).executed();
   
-  logReceipt(receipt);
+  logReceipt(receipt, 'BaseRegistrarImplementation');
 }
 
 main().catch(console.log);
