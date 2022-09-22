@@ -80,7 +80,7 @@ contract NameWrapper is
             MAX_EXPIRY
         );
         names[ROOT_NODE] = "\x00";
-        names[ETH_NODE] = "\x03web3\x00"; // eth -> web3
+        names[ETH_NODE] = "\x04web3\x00"; // eth -> web3
     }
 
     function supportsInterface(bytes4 interfaceId)
