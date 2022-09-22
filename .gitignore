@@ -12,3 +12,4 @@ tmp
 SDK
 scripts/sdk
 scripts/setup/test.ts
+.DS_Store

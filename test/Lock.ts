@@ -121,4 +121,27 @@ describe("Lock", function () {
       });
     });
   });
+
+  describe("StringSets", function() {
+    it("Should add successfully", async function () {
+      const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
+        deployOneYearLockFixture
+      );
+
+      const testName = "test";
+
+      let tx = await lock.addName(testName);
+
+      let contain = await lock.containsName(testName);
+      expect(contain).to.equal(true);
+
+      let stringSets = await lock.getNames();
+      expect(stringSets[0]).equal(testName);
+
+      tx = await lock.removeName(testName);
+
+      contain = await lock.containsName(testName);
+      expect(contain).to.equal(false);
+    });
+  });
 });
