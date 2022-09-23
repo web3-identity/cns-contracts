@@ -40,12 +40,12 @@ contract ETHRegistrarController is
     bytes32 private constant ETH_NODE =
         0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // eth -> web3
     uint64 private constant MAX_EXPIRY = type(uint64).max;
-    BaseRegistrarImplementation immutable base;
-    IPriceOracle public immutable prices;
-    uint256 public immutable minCommitmentAge;
-    uint256 public immutable maxCommitmentAge;
-    ReverseRegistrar public immutable reverseRegistrar;
-    INameWrapper public immutable nameWrapper;
+    BaseRegistrarImplementation base;
+    IPriceOracle public prices;
+    uint256 public minCommitmentAge;
+    uint256 public maxCommitmentAge;
+    ReverseRegistrar public reverseRegistrar;
+    INameWrapper public nameWrapper;
 
     mapping(bytes32 => uint256) public commitments;
 
@@ -89,6 +89,11 @@ contract ETHRegistrarController is
         maxCommitmentAge = _maxCommitmentAge;
         reverseRegistrar = _reverseRegistrar;
         nameWrapper = _nameWrapper;
+    }
+
+    function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public onlyOwner {
+        minCommitmentAge = _minCommitmentAge;
+        maxCommitmentAge = _maxCommitmentAge;
     }
 
     function rentPrice(string memory name, uint256 duration)
