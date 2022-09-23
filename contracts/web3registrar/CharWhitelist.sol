@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "solidity-stringutils/strings.sol";
+import "./INameWhitelist.sol";
 
 // zero width space
 // https://unicode-table.com/en/200B/
@@ -16,7 +17,7 @@ import "solidity-stringutils/strings.sol";
 // https://github.com/Arachnid/solidity-stringutils
 // https://github.com/ethereum/solidity-examples/blob/master/src/strings/Strings.sol
 
-contract CharWhitelist is Ownable {
+contract CharWhitelist is Ownable, INameWhitelist {
     using strings for *;
 
     bytes constant ZERO_WIDTH_SPACE = hex"e2808b";
@@ -99,6 +100,10 @@ contract CharWhitelist is Ownable {
 
     function isInWhiteList(string memory toCheck) public view returns (bool) {
         return whiteList[toCheck];
+    }
+
+    function isReserved(string memory label) public view returns (bool) {
+        return specialNames[label];
     }
 
     function setSpecialNames(string memory name, bool isSpecial) public onlyOwner {

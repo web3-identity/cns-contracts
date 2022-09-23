@@ -49,6 +49,9 @@ contract ETHRegistrarController is
 
     mapping(bytes32 => uint256) public commitments;
 
+    // CNS UPDATE
+    mapping(address => mapping(uint256 => bool)) public userCommitmentsStatus;
+
     event NameRegistered(
         string name,
         bytes32 indexed label,
@@ -161,6 +164,98 @@ contract ETHRegistrarController is
             revert InsufficientValue();
         }
 
+        _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
+
+        if (msg.value > (price.base + price.premium)) {
+            payable(msg.sender).transfer(
+                msg.value - (price.base + price.premium)
+            );
+        }
+    }
+
+    // CNS UPDATE
+    function registerWithFiat(
+        string calldata name,
+        address owner,
+        uint256 duration,
+        bytes32 secret,
+        address resolver,
+        bytes[] calldata data,
+        bool reverseRecord,
+        uint32 fuses,
+        uint64 wrapperExpiry
+    ) public {
+        bytes32 commitment = makeCommitment(
+            name,
+            owner,
+            duration,
+            secret,
+            resolver,
+            data,
+            reverseRecord,
+            fuses,
+            wrapperExpiry
+        );
+        require(userCommitmentsStatus[owner][uint256(commitment)], "Commitment not payed");
+        userCommitmentsStatus[msg.sender][uint256(commitment)] = false;
+        _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
+    }
+
+    function makeRenewCommitment(
+        string memory name,
+        uint256 duration,
+        bytes32 secret
+    ) public pure returns (bytes32) {
+        bytes32 label = keccak256(bytes(name));
+        return
+            keccak256(
+                abi.encode(
+                    label,
+                    duration,
+                    secret
+                )
+            );
+    }
+
+    function renewWithFiat(string calldata name, uint256 duration, bytes32 secret) public
+    {
+        bytes32 commitment = makeRenewCommitment(name, duration, secret);
+        require(userCommitmentsStatus[msg.sender][uint256(commitment)], "Commitment not payed");  // NOTE: the msg.sender is the owner of the name
+        userCommitmentsStatus[msg.sender][uint256(commitment)] = false;
+
+        uint32 fuses = 0;
+        uint64 wrapperExpiry = 0;
+        bytes32 labelhash = keccak256(bytes(name));
+        bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
+        uint256 tokenId = uint256(labelhash);
+        uint256 expires;
+        if (nameWrapper.isWrapped(nodehash)) {
+            expires = nameWrapper.renew(
+                tokenId,
+                duration,
+                fuses,
+                wrapperExpiry
+            );
+        } else {
+            expires = base.renew(tokenId, duration);
+        }
+
+        emit NameRenewed(name, labelhash, 0, expires);
+    }
+
+    function _register(
+        string memory name,
+        address owner,
+        uint256 duration,
+        bytes32 secret,
+        address resolver,
+        bytes[] calldata data,
+        bool reverseRecord,
+        uint32 fuses,
+        uint64 wrapperExpiry
+    ) internal returns (uint256) {
+        IPriceOracle.Price memory price = rentPrice(name, duration);
+
         _consumeCommitment(
             name,
             duration,
@@ -203,11 +298,11 @@ contract ETHRegistrarController is
             expires
         );
 
-        if (msg.value > (price.base + price.premium)) {
-            payable(msg.sender).transfer(
-                msg.value - (price.base + price.premium)
-            );
-        }
+        return expires;
+    }
+
+    function setUserCommitmentsStatus(address user, uint256 commitment, bool status) public onlyOwner {
+        userCommitmentsStatus[user][commitment] = status;
     }
 
     function renew(string calldata name, uint256 duration)
