@@ -19,11 +19,6 @@ import {
   logReceipt
 } from '../utils'
 
-// console.log(namehash('eth'))  // 0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae
-// console.log(namehash('web3'))  // 0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb
-
-const ONE_YEAR = 3600 * 24 * 365;
-
 async function main() {
   const owner = await Registry.owner(ROOT_NODE);
   console.log('Root node owner', owner);

@@ -1,11 +1,9 @@
 import { Conflux } from 'js-conflux-sdk';
-import fs from 'fs';
-import path from 'path';
+import { getContractMetadata } from '../utils';
 
 const { 
   RPC_URL,
   NETWORK_ID,
-  PROJECT_ROOT,
   PRIVATE_KEY,
   ENS_REGISTRY,
   REVERSE_REGISTRAR,
@@ -24,13 +22,6 @@ export const conflux = new Conflux({
 
 export const account = conflux.wallet.addPrivateKey(PRIVATE_KEY);
 
-export function getContractMetadata(contractName: string) {
-  const contractMetadata = JSON.parse(
-    fs.readFileSync(path.join(PROJECT_ROOT as string, `./artifacts/${contractName}.json`), 'utf8')
-  );
-  return contractMetadata;
-}
-
 const registryMeta = getContractMetadata('@ensdomains/ens-contracts/contracts/registry/ENSRegistry.sol/ENSRegistry');
 const reverseRegistrarMeta = getContractMetadata('@ensdomains/ens-contracts/contracts/registry/ReverseRegistrar.sol/ReverseRegistrar');
 const publicResolverMeta = getContractMetadata('@ensdomains/ens-contracts/contracts/resolvers/PublicResolver.sol/PublicResolver');
@@ -44,4 +35,3 @@ export const PublicResolver = conflux.Contract({abi: publicResolverMeta.abi, add
 export const BaseRegistrar = conflux.Contract({abi: baseRegistrarMeta.abi, address: BASE_REGISTRAR});
 export const Web3Controller = conflux.Contract({abi: web3ControllerMeta.abi, address: WEB3_CONTROLLER});
 export const NameWrapper = conflux.Contract({abi: nameWrapperMeta.abi, address: NAME_WRAPPER});
-

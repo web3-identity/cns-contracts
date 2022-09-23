@@ -1,4 +1,6 @@
-import { TransactionReceipt } from "js-conflux-sdk/dist/types/rpc/types/formatter"
+import { TransactionReceipt } from "js-conflux-sdk/dist/types/rpc/types/formatter";
+import fs from "fs";
+import path from "path";
 
 export function logReceipt(receipt: TransactionReceipt, name?: string) {
   if (name) {
@@ -15,4 +17,15 @@ export function logReceipt(receipt: TransactionReceipt, name?: string) {
   }
 }
 
-export const WEB3_NAMEHASH = '0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb';
+export function getContractMetadata(contractName: string) {
+  const contractMetadata = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        process.env.PROJECT_ROOT as string,
+        `./artifacts/${contractName}.json`
+      ),
+      "utf8"
+    )
+  );
+  return contractMetadata;
+}

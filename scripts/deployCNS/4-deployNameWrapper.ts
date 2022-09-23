@@ -1,5 +1,5 @@
 import hre from 'hardhat';
-import { logReceipt } from './utils';
+import { logReceipt } from '../utils';
 const {
   conflux,    // The Conflux instance
 } = hre;
