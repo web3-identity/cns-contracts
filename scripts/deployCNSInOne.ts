@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { WEB3_NAMEHASH, REVERSE_NAMEHASH, ROOT_NODE, namehash, labelhash } from './sdk/utils'
+import { WEB3_NAMEHASH, REVERSE_NAMEHASH, ROOT_NODE, namehash, labelhash } from './utils'
 import { mine } from "@nomicfoundation/hardhat-network-helpers";
 const ONE_YEAR = 3600 * 24 * 365;
 
@@ -45,7 +45,7 @@ async function main() {
   for(let i = 0; i < pricesForOneYear.length; i++) {
     pricesForOneYear[i] = pricesForOneYear[i] * BigInt(1e18) / (3600n * 24n * 365n);
   }
-  const StablePriceOracle = await ethers.getContractFactory("StablePriceOracle");
+  const StablePriceOracle = await ethers.getContractFactory("contracts/web3registrar/PirceOracles.sol:StablePriceOracle");
   const stablePriceOracle = await StablePriceOracle.deploy(cfxPriceOracle.address, pricesForOneYear);
   await stablePriceOracle.deployed();
   console.log(`StablePriceOracle deployed to ${stablePriceOracle.address}`);

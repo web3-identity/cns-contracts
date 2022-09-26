@@ -4,13 +4,15 @@ const {
   conflux,    // The Conflux instance
 } = hre;
 
+const DEFAULT_TOKEN_URI = 'http://a.xyz/{id}.json';
+
 async function main() {
   // @ts-ignore
   const accounts = await conflux.getSigners();
   
   // @ts-ignore
   const StaticMetadataService = await conflux.getContractFactory('StaticMetadataService');
-  const receipt1 = await StaticMetadataService.constructor('http://a.xyz/{id}.json').sendTransaction({
+  const receipt1 = await StaticMetadataService.constructor(DEFAULT_TOKEN_URI).sendTransaction({
     from: accounts[0].address,
   }).executed();
   logReceipt(receipt1, 'StaticMetadataService');

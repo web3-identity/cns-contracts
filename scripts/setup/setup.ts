@@ -4,8 +4,9 @@ import {
   labelhash, 
   WEB3_NAMEHASH, 
   REVERSE_NAMEHASH, 
-  ROOT_NODE
-} from '../sdk/utils'
+  ROOT_NODE,
+  ONE_YEAR,
+} from '../utils'
 import { 
   account, 
   Registry, 
@@ -23,11 +24,11 @@ async function main() {
   const owner = await Registry.owner(ROOT_NODE);
   console.log('Root node owner', owner);
 
-  // await basicSetup();
+  await basicSetup();
 
   // await purchaseDomain();
 
-  await claimReverseDomain();
+//   await claimReverseDomain();
 }
 
 main().catch(console.log)
@@ -35,7 +36,7 @@ main().catch(console.log)
 async function basicSetup() {
   let receipt;
 
-  /* receipt = await Registry.setSubnodeOwner(ROOT_NODE, labelhash('web3'), BaseRegistrar.address)
+  receipt = await Registry.setSubnodeOwner(ROOT_NODE, labelhash('web3'), BaseRegistrar.address)
     .sendTransaction({
       from: account.address,
     })
@@ -56,21 +57,21 @@ async function basicSetup() {
       from: account
     })
     .executed();
-  logReceipt(receipt, 'Add name wrapper to base registrar'); */
+  logReceipt(receipt, 'Add name wrapper to base registrar');
 
-  /* receipt = await NameWrapper.setController(Web3Controller.address, true)
+  receipt = await NameWrapper.setController(Web3Controller.address, true)
     .sendTransaction({
       from: account
     })
     .executed();
-  logReceipt(receipt, 'Add web3 controller to name wrapper'); */
+  logReceipt(receipt, 'Add web3 controller to name wrapper');
 
-  /* receipt = await ReverseRegistrar.setDefaultResolver(PublicResolver.address)
+  receipt = await ReverseRegistrar.setDefaultResolver(PublicResolver.address)
     .sendTransaction({
       from: account
     })
     .executed();
-  logReceipt(receipt, 'Set default resolver for reverse registrar'); */
+  logReceipt(receipt, 'Set default resolver for reverse registrar');
 }
 
 async function setOwnerOfAddrReverse() {
@@ -110,11 +111,11 @@ async function purchaseDomain() {
     .makeCommitment(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], false, 0, ONE_YEAR);
 
   let receipt
-  /* receipt = await Web3Controller.commit(commitment).sendTransaction({
+  receipt = await Web3Controller.commit(commitment).sendTransaction({
     from: account
   })
   .executed();
-  logReceipt(receipt, 'Commit'); */
+  logReceipt(receipt, 'Commit');
 
   receipt = await Web3Controller
     .register(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], false, 0, ONE_YEAR)
@@ -130,15 +131,15 @@ async function claimReverseDomain() {
   const toBuy = 'jiuhua';
 
   let receipt
-  /* receipt = await ReverseRegistrar.claimForAddr(account.address, account.address, PublicResolver.address)
+  receipt = await ReverseRegistrar.claimForAddr(account.address, account.address, PublicResolver.address)
     .sendTransaction({
       from: account
     })
     .executed();
-  logReceipt(receipt, 'Set default resolver for reverse registrar'); */
+  logReceipt(receipt, 'Set default resolver for reverse registrar');
 
-  /* const owner = await Registry.owner(namehash(`${format.hexAddress(account.address).replace('0x', '')}.addr.reverse`))
-  console.log(owner) */
+  const owner = await Registry.owner(namehash(`${format.hexAddress(account.address).replace('0x', '')}.addr.reverse`))
+  console.log(owner)
 
   receipt = await PublicResolver.setName(namehash(`${format.hexAddress(account.address).replace('0x', '')}.addr.reverse`), 'jiuhua.web3')
     .sendTransaction({
@@ -146,5 +147,4 @@ async function claimReverseDomain() {
     })
     .executed();
   logReceipt(receipt, 'Set default resolver for reverse registrar');
-
 }

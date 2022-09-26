@@ -1,10 +1,11 @@
 import hre from 'hardhat';
 import { logReceipt } from '../utils';
+import {
+    WEB3_NAMEHASH
+} from '../utils';
 const {
-  conflux,    // The Conflux instance
-} = hre;
-
-const WEB3_NAMEHASH = '0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb';
+    conflux,    // The Conflux instance
+  } = hre;
 
 async function main() {
   // @ts-ignore
