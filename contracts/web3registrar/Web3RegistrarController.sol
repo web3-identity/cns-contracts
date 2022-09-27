@@ -89,6 +89,12 @@ contract ETHRegistrarController is
     }
 
     function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public onlyOwner {
+        if (_maxCommitmentAge <= _minCommitmentAge) {
+            revert MaxCommitmentAgeTooLow();
+        }
+        if (_maxCommitmentAge > block.timestamp) {
+            revert MaxCommitmentAgeTooHigh();
+        }
         minCommitmentAge = _minCommitmentAge;
         maxCommitmentAge = _maxCommitmentAge;
     }
