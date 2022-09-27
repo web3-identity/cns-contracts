@@ -21,4 +21,10 @@
 
 1. addr.reverse owner -> ReverseRegistrar (ADDR_REVERSE_NODE = 0x91d1777781884d03a6757a803996e38de2a42967fb37eeaca72729271025a9e2)
 2. web3 -> BaseRegistrar
-3. baseRegistrar addController
+3. baseRegistrar addController: controller, namewrapper
+4. ReverseRegistrar setDefaultResolver, setController -> web3Controller
+5. NameWrapper setController -> web3Controller
+
+### BulkRenewal
+
+1. Set interfaceImplementer

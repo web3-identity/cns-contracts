@@ -88,6 +88,7 @@ contract ETHRegistrarController is
         nameWrapper = _nameWrapper;
     }
 
+    // CNS UPDATE
     function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public onlyOwner {
         if (_maxCommitmentAge <= _minCommitmentAge) {
             revert MaxCommitmentAgeTooLow();
@@ -381,7 +382,6 @@ contract ETHRegistrarController is
         bytes32 label,
         bytes[] calldata data
     ) internal {
-        // use hardcoded .eth namehash
         bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, label));
         Resolver resolver = Resolver(resolverAddress);
         resolver.multicallWithNodeCheck(nodehash, data);
