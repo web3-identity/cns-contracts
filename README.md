@@ -13,3 +13,11 @@ $ npm install
 ```bash
 $ npm run build
 ```
+
+## Add config file
+
+```bash
+$ cp .env.example .env
+```
+
+Then edit `.env` file. Set `PRIVATE_KEY` to your private key.
