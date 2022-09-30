@@ -22,8 +22,8 @@ import {
   PARENT_CANNOT_CONTROL, 
   CAN_DO_EVERYTHING
 } from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
-import {EnumerableStringSet} from "../utils/EnumerableStringSet.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 error Unauthorised(bytes32 node, address addr);
 error NameNotFound();
@@ -45,7 +45,7 @@ contract NameWrapper is
     ERC20Recoverable
 {
     using BytesUtils for bytes;
-    using EnumerableStringSet for EnumerableStringSet.StringSet;
+    using EnumerableSet for EnumerableSet.Bytes32Set;
     ENS public immutable override ens;
     IBaseRegistrar public immutable override registrar;
     IMetadataService public override metadataService;
@@ -60,12 +60,9 @@ contract NameWrapper is
     uint64 private constant MAX_EXPIRY = type(uint64).max;
 
     // CNS UPDATE: used for enumerate all web3 domains of one address
-    // owner => web3 sub domain label set
-    // Update places: wrap, unwrap, transfer
-    mapping(address => EnumerableStringSet.StringSet) private userLabels;
-    mapping(bytes32 => address) private labelOwners;
-    mapping(bytes32 => string) private hashToLabel;
-    mapping(bytes32 => string) private nodeToLabel;
+    // owner => web3 node set
+    // Update places: _mint, _burn, transfer
+    mapping(address => EnumerableSet.Bytes32Set) private userNodes;
 
     constructor(
         ENS _ens,
@@ -341,14 +338,6 @@ contract NameWrapper is
             registrant,
             uint256(labelhash)
         );
-
-        // CNS UPDATE
-        string memory label = hashToLabel[labelhash];
-        address labelOwner = labelOwners[labelhash];
-        userLabels[labelOwner].remove(label);
-        delete labelOwners[labelhash];
-        delete hashToLabel[labelhash];
-        delete nodeToLabel[node];
     }
 
     /**
@@ -774,7 +763,7 @@ contract NameWrapper is
     ) public virtual override(ERC1155Fuse, IERC1155) {
         super.safeTransferFrom(from, to, id, amount, data);
         
-        _updateLabelOwner(from, to, id);
+        _updateNodeOwner(from, to, id);
     }
 
     // CNS UPDATE
@@ -788,22 +777,27 @@ contract NameWrapper is
         super.safeBatchTransferFrom(from, to, ids, amounts, data);
 
         for(uint i = 0; i < ids.length; i++) {
-            _updateLabelOwner(from, to, ids[i]);
+            _updateNodeOwner(from, to, ids[i]);
         }
     }
 
-    function _updateLabelOwner(address from, address to, uint256 id) internal {
+    function _updateNodeOwner(address from, address to, uint256 id) internal {
         bytes32 node = bytes32(id);
-        string memory label = nodeToLabel[node];
-        if (bytes(label).length > 0) {
-            userLabels[from].remove(label);
-            userLabels[to].add(label);
-            labelOwners[keccak256(bytes(label))] = to;
-        }
+        userNodes[from].remove(node);
+        userNodes[to].add(node);
     }
 
-    function userETH2LDs(address user) public view returns (string[] memory) {
-        return userLabels[user].values();
+    function userNodeSet(address user) public view returns (bytes32[] memory) {
+        return userNodes[user].values();
+    }
+
+    function userDomains(address user) public view returns (string[] memory) {
+        bytes32[] memory nodes = userNodeSet(user);
+        string[] memory domains = new string[](nodes.length);
+        for(uint i = 0; i < nodes.length; i++) {
+            domains[i] = string(names[nodes[i]]);
+        }
+        return domains;
     }
 
     /***** Internal functions */
@@ -848,6 +842,17 @@ contract NameWrapper is
             emit NameUnwrapped(node, address(0));
         }
         super._mint(node, owner, fuses, expiry);
+
+        // CNS UPDATE: update userNodes 
+        userNodes[owner].add(node);
+    }
+
+    function _burn(uint256 tokenId) internal override {
+        // CNS UPDATE: update userNodes 
+        (address oldOwner, ,) = getData(tokenId);
+        userNodes[oldOwner].remove(bytes32(tokenId));
+
+        super._burn(tokenId);
     }
 
     function _wrap(
@@ -1005,16 +1010,6 @@ contract NameWrapper is
         );
         if (resolver != address(0)) {
             ens.setResolver(node, resolver);
-        }
-
-        // CNS UPDATE: update userLabels 
-        address labelOldOwner = labelOwners[labelhash];
-        labelOwners[labelhash] = wrappedOwner;
-        hashToLabel[labelhash] = label;
-        nodeToLabel[node] = label;
-        userLabels[wrappedOwner].add(label);
-        if (labelOldOwner != address(0)) {
-          userLabels[labelOldOwner].remove(label);
         }
 
         return expiry;
