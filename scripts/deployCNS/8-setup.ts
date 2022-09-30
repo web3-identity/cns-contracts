@@ -25,6 +25,17 @@ async function main() {
     // @ts-ignore
     const accounts = await conflux.getSigners();
     const account = accounts[0];
+    
+    // await setup(account);
+
+    await purchaseDomain(account);
+
+    // await claimReverseDomain(account);
+}
+
+main().catch(console.log);
+
+async function setup(account: any) {
     // @ts-ignore
     const ENSRegistry = await conflux.getContractAt('ENSRegistry', ENS_REGISTRY);
     // @ts-ignore
@@ -108,17 +119,17 @@ async function main() {
     logReceipt(receipt, 'Set default resolver for reverse registrar');
 }
 
-main().catch(console.log);
-
 async function purchaseDomain(account: any) {
     // @ts-ignore
     const Web3Controller = await conflux.getContractAt('ETHRegistrarController', WEB3_CONTROLLER);
     // @ts-ignore
     const PublicResolver = await conflux.getContractAt('PublicResolver', PUBLIC_RESOLVER);
 
-    const toBuy = 'jiuhua';
+    const toBuy = 'jiuhua1';
+
+    let receipt
   
-    const valid = await Web3Controller.valid(toBuy);
+    /* const valid = await Web3Controller.valid(toBuy);
     console.log(`Is ${toBuy} valid`, valid);
   
     const available = await Web3Controller.available(toBuy);
@@ -128,29 +139,29 @@ async function purchaseDomain(account: any) {
     console.log(`Rent price of ${toBuy}`, new Drip(rentPrice[0]).toCFX(), 'CFX');
   
     const commitment = await Web3Controller
-        .makeCommitment(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], false, 0, ONE_YEAR);
+        .makeCommitment(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR);
   
-    let receipt
+    
     receipt = await Web3Controller
         .commit(commitment).sendTransaction({
             from: account
         })
         .executed();
-    logReceipt(receipt, 'Commit');
+    logReceipt(receipt, 'Commit'); */
 
     // TODO, need wait for two minutes
   
     receipt = await Web3Controller
-        .register(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], false, 0, ONE_YEAR)
+        .register(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR)
         .sendTransaction({
             from: account.address,
             value: Drip.fromCFX(300),
         }).executed();
     logReceipt(receipt, 'Register');
   
-  }
+}
   
-  async function claimReverseDomain(account: any) {
+async function claimReverseDomain(account: any) {
     // @ts-ignore
     const ENSRegistry = await conflux.getContractAt('ENSRegistry', ENS_REGISTRY);
     // @ts-ignore
@@ -177,5 +188,5 @@ async function purchaseDomain(account: any) {
       })
       .executed();
     logReceipt(receipt, 'Set default resolver for reverse registrar');
-  }
+}
   
