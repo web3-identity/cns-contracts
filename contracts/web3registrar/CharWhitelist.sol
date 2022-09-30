@@ -22,14 +22,14 @@ contract CharWhitelist is Ownable, INameWhitelist {
 
     bytes constant ZERO_WIDTH_SPACE = hex"e2808b";
 
-    string constant CHAR_WHITE_LIST = "abcdefghijklmnopqrstuvwxyz0123456789_"; // ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    string constant CHAR_WHITE_LIST = "abcdefghijklmnopqrstuvwxyz0123456789-"; // ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
     string constant EMOJI_WHITE_LIST = unicode"✅";
 
-    string constant EMOJI_BLACK_LIST = unicode"​🇨🇳";
+    // string constant EMOJI_BLACK_LIST = unicode"​🇨🇳";
 
     mapping(string => bool) whiteList;
-    mapping(string => bool) blackList;
+    // mapping(string => bool) blackList;
     mapping(string => bool) specialNames;  // Reserved names
 
     constructor() {
@@ -45,11 +45,11 @@ contract CharWhitelist is Ownable, INameWhitelist {
             whiteList[s2.nextRune().toString()] = true;
         }
 
-        strings.slice memory s3 = EMOJI_BLACK_LIST.toSlice(); // NOTE: flag emojis is not supported by solidity-stringutils
+        /* strings.slice memory s3 = EMOJI_BLACK_LIST.toSlice(); // NOTE: flag emojis is not supported by solidity-stringutils
         uint s3Len = s3.len();
         for (uint256 i = 0; i < s3Len; i++) {
             blackList[s3.nextRune().toString()] = true;
-        }
+        } */
     }
 
     function checkIfZeroNotPresent(string memory _name) public pure returns (bool) {
@@ -78,9 +78,9 @@ contract CharWhitelist is Ownable, INameWhitelist {
 
     // NOTE: uppercase is not supported
     function isLabelValid(string memory _label) public view returns (bool) {
-        if (specialNames[_label]) {
+        /* if (specialNames[_label]) {
             return false;
-        }
+        } */
         /* if (!checkIfZeroNotPresent(_label)) {
             return false;
         } */
@@ -94,9 +94,9 @@ contract CharWhitelist is Ownable, INameWhitelist {
         return true;
     }
 
-    function isInEmojiBlackList(string memory toCheck) public view returns (bool) {
+    /* function isInEmojiBlackList(string memory toCheck) public view returns (bool) {
         return blackList[toCheck];
-    }
+    } */
 
     function isInWhiteList(string memory toCheck) public view returns (bool) {
         return whiteList[toCheck];
@@ -106,15 +106,29 @@ contract CharWhitelist is Ownable, INameWhitelist {
         return specialNames[label];
     }
 
-    function setSpecialNames(string memory name, bool isSpecial) public onlyOwner {
+    function setSpecialName(string memory name, bool isSpecial) public onlyOwner {
         specialNames[name] = isSpecial;
+    }
+
+    function setSpecialNameBatch(string[] memory names, bool isSpecial) public onlyOwner {
+        for(uint i = 0; i < names.length; i++) {
+            specialNames[names[i]] = isSpecial;
+        }
     }
 
     function setWhiteList(string memory name, bool isWhite) public onlyOwner {
         whiteList[name] = isWhite;
     }
 
-    function setBlackList(string memory name, bool isBlack) public onlyOwner {
-        blackList[name] = isBlack;
+    function setWhiteListBatch(string memory name, bool isWhite) public onlyOwner {
+        strings.slice memory s1 = name.toSlice();
+        uint s1Len = s1.len();
+        for (uint256 i = 0; i < s1Len; i++) {
+            whiteList[s1.nextRune().toString()] = isWhite;
+        }
     }
+
+    /* function setBlackList(string memory name, bool isBlack) public onlyOwner {
+        blackList[name] = isBlack;
+    } */
 }

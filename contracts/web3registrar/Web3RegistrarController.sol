@@ -12,6 +12,7 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {INameWrapper} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
 import {ERC20Recoverable} from "@ensdomains/ens-contracts/contracts/utils/ERC20Recoverable.sol";
+import {INameWhitelist} from "./INameWhitelist.sol";
 
 error CommitmentTooNew(bytes32 commitment);
 error CommitmentTooOld(bytes32 commitment);
@@ -23,6 +24,7 @@ error InsufficientValue();
 error Unauthorised(bytes32 node);
 error MaxCommitmentAgeTooLow();
 error MaxCommitmentAgeTooHigh();
+error InvalidLabel(string name);
 
 /**
  * @dev A registrar controller for registering and renewing names at fixed cost.
@@ -36,6 +38,15 @@ contract ETHRegistrarController is
     using StringUtils for *;
     using Address for address;
 
+    enum LabelStatus {
+        Valid,
+        TooShort,
+        Reserved,
+        IllegalChar,
+        Locked,
+        Registered
+    }
+
     uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
     bytes32 private constant ETH_NODE =
         0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // eth -> web3
@@ -46,8 +57,10 @@ contract ETHRegistrarController is
     uint256 public maxCommitmentAge;
     ReverseRegistrar public reverseRegistrar;
     INameWrapper public nameWrapper;
+    INameWhitelist public nameWhitelist;
 
     mapping(bytes32 => uint256) public commitments;
+    mapping(bytes32 => uint256) public labelCommitments;
 
     event NameRegistered(
         string name,
@@ -100,6 +113,10 @@ contract ETHRegistrarController is
         maxCommitmentAge = _maxCommitmentAge;
     }
 
+    function setNameWhitelist(INameWhitelist _nameWhitelist) public onlyOwner {
+        nameWhitelist = _nameWhitelist;
+    }
+
     function rentPrice(string memory name, uint256 duration)
         public
         view
@@ -116,7 +133,34 @@ contract ETHRegistrarController is
 
     function available(string memory name) public view override returns (bool) {
         bytes32 label = keccak256(bytes(name));
-        return valid(name) && base.available(uint256(label));
+        return labelAvailable(label) && valid(name) && base.available(uint256(label));
+    }
+
+    function labelAvailable(bytes32 label) public view returns (bool) {
+        return labelCommitments[label] + maxCommitmentAge <= block.timestamp;
+    }
+
+    function labelStatus(string memory _label) public view returns (LabelStatus) {
+        // too short
+        if (!valid(_label)) {
+            return LabelStatus.TooShort;
+        }
+        if (nameWhitelist.isReserved(_label)) {
+            return LabelStatus.Reserved;
+        }
+        // check char
+        if (!nameWhitelist.isLabelValid(_label)) {
+            return LabelStatus.IllegalChar;
+        }
+        // locked by others
+        if (!labelAvailable(keccak256(bytes(_label)))) {
+            return LabelStatus.Locked;
+        }
+        // registered
+        if (!available(_label)) {
+            return LabelStatus.Registered;
+        }
+        return LabelStatus.Valid;
     }
 
     function makeCommitment(
@@ -129,7 +173,12 @@ contract ETHRegistrarController is
         bool reverseRecord,
         uint32 fuses,
         uint64 wrapperExpiry
-    ) public pure override returns (bytes32) {
+    ) public view override returns (bytes32) {
+        LabelStatus _labelStatus = labelStatus(name);
+        if (_labelStatus != LabelStatus.Valid) {
+            revert InvalidLabel(name);
+        }
+
         bytes32 label = keccak256(bytes(name));
         if (data.length > 0 && resolver == address(0)) {
             revert ResolverRequiredWhenDataSupplied();
@@ -155,6 +204,14 @@ contract ETHRegistrarController is
             revert UnexpiredCommitmentExists(commitment);
         }
         commitments[commitment] = block.timestamp;
+    }
+
+    function commit(bytes32 commitment, string memory name) public {
+        bytes32 label = keccak256(bytes(name));
+        require(labelAvailable(label), 'label occupied');
+        labelCommitments[label] = block.timestamp;
+
+        commit(commitment);
     }
 
     function register(
@@ -371,6 +428,7 @@ contract ETHRegistrarController is
         }
 
         delete (commitments[commitment]);
+        delete (labelCommitments[keccak256(bytes(name))]);
 
         if (duration < MIN_REGISTRATION_DURATION) {
             revert DurationTooShort(duration);

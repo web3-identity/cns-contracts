@@ -66,6 +66,33 @@ contract StablePriceOracle is IPriceOracle, Ownable {
             });
     }
 
+    function priceInFiat(
+        string calldata name,
+        uint256 expires,
+        uint256 duration
+    ) external view returns (IPriceOracle.Price memory) {
+        uint256 len = name.strlen();
+        uint256 basePrice;
+
+        if (len >= 5) {
+            basePrice = price5Letter * duration;
+        } else if (len == 4) {
+            basePrice = price4Letter * duration;
+        } else if (len == 3) {
+            basePrice = price3Letter * duration;
+        } else if (len == 2) {
+            basePrice = price2Letter * duration;
+        } else {
+            basePrice = price1Letter * duration;
+        }
+
+        return
+            IPriceOracle.Price({
+                base: basePrice,
+                premium: 0
+            });
+    }
+
     /**
      * @dev Returns the pricing premium in wei.
      */
