@@ -10,38 +10,43 @@ async function main() {
   // @ts-ignore
   const accounts = await conflux.getSigners();
   // @ts-ignore
-  const CharWhitelist = await conflux.getContractFactory('CharWhitelist');
-  let receipt = await CharWhitelist.constructor().sendTransaction({
+  const NameWhitelist = await conflux.getContractFactory('NameWhitelist');
+  let receipt = await NameWhitelist.constructor().sendTransaction({
     from: accounts[0].address,
   }).executed();
   
-  logReceipt(receipt, 'CharWhitelist');
+  logReceipt(receipt, 'NameWhitelist');
 
-  let charWhitelist = await conflux.getContractAt('CharWhitelist', receipt.contractCreated);
+  // @ts-ignore
+  let nameWhitelist = await conflux.getContractAt('NameWhitelist', receipt.contractCreated);
   const emojis = await readEmojis();
-  receipt = await charWhitelist.setWhiteListBatch(emojis.join(''), true).sendTransaction({
+  receipt = await nameWhitelist.setWhiteListBatch(emojis.join(''), true).sendTransaction({
     from: accounts[0].address
   }).executed();
   logReceipt(receipt, 'setWhiteList');
 
-  feedReservedNames(charWhitelist, accounts[0]);
+  feedReservedNames(nameWhitelist, accounts[0]);
 }
 
 main().catch(console.log);
 
 async function readEmojis() {
+    // @ts-ignore
     const file = path.join(process.env.PROJECT_ROOT, '../charsets/data/char_set_emoji.txt');
+    // @ts-ignore
     const emojis = fs.readFileSync(file, 'UTF-8').split('\n');
     return emojis;
 }
 
-async function feedReservedNames(charWhitelist, account) {
+async function feedReservedNames(nameWhitelist: any, account: any) {
+    // @ts-ignore
     const file = path.join(process.env.PROJECT_ROOT, '../charsets/data/reserved_accounts.txt');
-    const reserved = fs.readFileSync(file, 'UTF-8').split('\n');
+    // @ts-ignore
+    const reserved = fs.readFileSync(file, "UTF-8").split('\n');
     console.log('Reserved word length', reserved.length);
     const step = 1000
     for(let i = 0; i < reserved.length; i += step) {
-        let receipt = await charWhitelist.setSpecialNameBatch(reserved.slice(i, i + step), true).sendTransaction({
+        let receipt = await nameWhitelist.setSpecialNameBatch(reserved.slice(i, i + step), true).sendTransaction({
             from: account.address
         }).executed();
         logReceipt(receipt, `Set Reserved Names ${i} - ${i + step}`);

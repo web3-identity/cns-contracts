@@ -17,7 +17,7 @@ import "./INameWhitelist.sol";
 // https://github.com/Arachnid/solidity-stringutils
 // https://github.com/ethereum/solidity-examples/blob/master/src/strings/Strings.sol
 
-contract CharWhitelist is Ownable, INameWhitelist {
+contract NameWhitelist is Ownable, INameWhitelist {
     using strings for *;
 
     bytes constant ZERO_WIDTH_SPACE = hex"e2808b";

@@ -7,10 +7,12 @@ import {INameWrapperUpgrade} from "@ensdomains/ens-contracts/contracts/wrapper/I
 import {IMetadataService} from "@ensdomains/ens-contracts/contracts/wrapper/IMetadataService.sol";
 import {ENS} from "@ensdomains/ens-contracts/contracts/registry/ENS.sol";
 import {IBaseRegistrar} from "@ensdomains/ens-contracts/contracts/ethregistrar/IBaseRegistrar.sol";
-import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {BytesUtils} from "@ensdomains/ens-contracts/contracts/wrapper/BytesUtils.sol";
 import {ERC20Recoverable} from "@ensdomains/ens-contracts/contracts/utils/ERC20Recoverable.sol";
+import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {
   INameWrapper, 
   CANNOT_UNWRAP, 
@@ -22,8 +24,6 @@ import {
   PARENT_CANNOT_CONTROL, 
   CAN_DO_EVERYTHING
 } from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
-import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 error Unauthorised(bytes32 node, address addr);
 error NameNotFound();
