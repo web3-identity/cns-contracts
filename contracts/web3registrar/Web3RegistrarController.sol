@@ -4,6 +4,7 @@ pragma solidity ~0.8.17;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 import {BaseRegistrarImplementation} from "@ensdomains/ens-contracts/contracts/ethregistrar/BaseRegistrarImplementation.sol";
 import {StringUtils} from "@ensdomains/ens-contracts/contracts/ethregistrar/StringUtils.sol";
@@ -35,7 +36,8 @@ contract ETHRegistrarController is
     Ownable,
     IETHRegistrarController,
     IERC165,
-    ERC20Recoverable
+    ERC20Recoverable,
+    Initializable
 {
     using StringUtils for *;
     using Address for address;
@@ -87,6 +89,28 @@ contract ETHRegistrarController is
         ReverseRegistrar _reverseRegistrar,
         INameWrapper _nameWrapper
     ) {
+        _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
+    }
+
+    function initialize(
+        BaseRegistrarImplementation _base,
+        IPriceOracle _prices,
+        uint256 _minCommitmentAge,
+        uint256 _maxCommitmentAge,
+        ReverseRegistrar _reverseRegistrar,
+        INameWrapper _nameWrapper
+    ) public initializer {
+        _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
+    }
+
+    function _init(
+        BaseRegistrarImplementation _base,
+        IPriceOracle _prices,
+        uint256 _minCommitmentAge,
+        uint256 _maxCommitmentAge,
+        ReverseRegistrar _reverseRegistrar,
+        INameWrapper _nameWrapper
+    ) internal {
         if (_maxCommitmentAge <= _minCommitmentAge) {
             revert MaxCommitmentAgeTooLow();
         }

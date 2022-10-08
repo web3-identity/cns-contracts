@@ -13,6 +13,7 @@ import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {
   INameWrapper, 
   CANNOT_UNWRAP, 
@@ -42,12 +43,13 @@ contract NameWrapper is
     INameWrapper,
     Controllable,
     IERC721Receiver,
-    ERC20Recoverable
+    ERC20Recoverable,
+    Initializable
 {
     using BytesUtils for bytes;
     using EnumerableSet for EnumerableSet.Bytes32Set;
-    ENS public immutable override ens;
-    IBaseRegistrar public immutable override registrar;
+    ENS public override ens;
+    IBaseRegistrar public override registrar;
     IMetadataService public override metadataService;
     mapping(bytes32 => bytes) public override names;
     string public constant name = "NameWrapper";
@@ -70,6 +72,14 @@ contract NameWrapper is
         IBaseRegistrar _registrar,
         IMetadataService _metadataService
     ) {
+        _init(_ens, _registrar, _metadataService);
+    }
+
+    function initialize(ENS _ens, IBaseRegistrar _registrar, IMetadataService _metadataService) public initializer {
+        _init(_ens, _registrar, _metadataService);
+    }
+
+    function _init(ENS _ens, IBaseRegistrar _registrar, IMetadataService _metadataService) internal {
         ens = _ens;
         registrar = _registrar;
         metadataService = _metadataService;
