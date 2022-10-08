@@ -57,6 +57,10 @@ async function main() {
   await ethRegistrarController.deployed();
   console.log(`ETHRegistrarController deployed to ${ethRegistrarController.address}`);
 
+  const NameWhitelist = await ethers.getContractFactory("NameWhitelist");
+  const nameWhitelist = await NameWhitelist.deploy();
+  await nameWhitelist.deployed();
+
   const PublicResolver = await ethers.getContractFactory("PublicResolver");
   const publicResolver = await PublicResolver.deploy(ensRegistry.address, nameWrapper.address, ethRegistrarController.address, reverseRegistrar.address);
   await publicResolver.deployed();
@@ -86,6 +90,9 @@ async function main() {
   await tx.wait();
 
   tx = await reverseRegistrar.setController(ethRegistrarController.address, true);
+  await tx.wait();
+
+  tx = await ethRegistrarController.setNameWhitelist(nameWhitelist.address);
   await tx.wait();
 
   // test buy a name ==================================

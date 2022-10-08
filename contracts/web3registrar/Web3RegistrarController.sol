@@ -1,22 +1,24 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ~0.8.17;
 
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+
 import {BaseRegistrarImplementation} from "@ensdomains/ens-contracts/contracts/ethregistrar/BaseRegistrarImplementation.sol";
 import {StringUtils} from "@ensdomains/ens-contracts/contracts/ethregistrar/StringUtils.sol";
 import {Resolver} from "@ensdomains/ens-contracts/contracts/resolvers/Resolver.sol";
 import {ReverseRegistrar} from "@ensdomains/ens-contracts/contracts/registry/ReverseRegistrar.sol";
 import {IETHRegistrarController, IPriceOracle} from "@ensdomains/ens-contracts/contracts/ethregistrar/IETHRegistrarController.sol";
-
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {INameWrapper} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
 import {ERC20Recoverable} from "@ensdomains/ens-contracts/contracts/utils/ERC20Recoverable.sol";
+
 import {INameWhitelist} from "./INameWhitelist.sol";
 
 error CommitmentTooNew(bytes32 commitment);
 error CommitmentTooOld(bytes32 commitment);
 error NameNotAvailable(string name);
+error NameLocked(string name);
 error DurationTooShort(uint256 duration);
 error ResolverRequiredWhenDataSupplied();
 error UnexpiredCommitmentExists(bytes32 commitment);
@@ -49,7 +51,7 @@ contract ETHRegistrarController is
 
     uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
     bytes32 private constant ETH_NODE =
-        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // eth -> web3
+        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // CNS UPDATE: eth -> web3
     uint64 private constant MAX_EXPIRY = type(uint64).max;
     BaseRegistrarImplementation base;
     IPriceOracle public prices;
@@ -57,10 +59,10 @@ contract ETHRegistrarController is
     uint256 public maxCommitmentAge;
     ReverseRegistrar public reverseRegistrar;
     INameWrapper public nameWrapper;
-    INameWhitelist public nameWhitelist;
+    INameWhitelist public nameWhitelist; // CNS UPDATE
 
     mapping(bytes32 => uint256) public commitments;
-    mapping(bytes32 => uint256) public labelCommitments;
+    mapping(bytes32 => uint256) public labelCommitments; // CNS UPDATE
 
     event NameRegistered(
         string name,
@@ -113,6 +115,7 @@ contract ETHRegistrarController is
         maxCommitmentAge = _maxCommitmentAge;
     }
 
+    // CNS UPDATE
     function setNameWhitelist(INameWhitelist _nameWhitelist) public onlyOwner {
         nameWhitelist = _nameWhitelist;
     }
@@ -128,18 +131,20 @@ contract ETHRegistrarController is
     }
 
     function valid(string memory name) public pure returns (bool) {
-        return name.strlen() >= 3;
+        return name.strlen() > 3;
     }
 
     function available(string memory name) public view override returns (bool) {
         bytes32 label = keccak256(bytes(name));
-        return labelAvailable(label) && valid(name) && base.available(uint256(label));
+        return valid(name) && base.available(uint256(label));
     }
 
+    // CNS UPDATE
     function labelAvailable(bytes32 label) public view returns (bool) {
         return labelCommitments[label] + maxCommitmentAge <= block.timestamp;
     }
 
+    // CNS UPDATE
     function labelStatus(string memory _label) public view returns (LabelStatus) {
         // too short
         if (!valid(_label)) {
@@ -206,7 +211,8 @@ contract ETHRegistrarController is
         commitments[commitment] = block.timestamp;
     }
 
-    function commit(bytes32 commitment, string memory name) public {
+    // CNS UPDATE
+    function commitWithName(bytes32 commitment, string memory name) public {
         bytes32 label = keccak256(bytes(name));
         require(labelAvailable(label), 'label occupied');
         labelCommitments[label] = block.timestamp;
@@ -324,25 +330,21 @@ contract ETHRegistrarController is
     function renewWithFiat(string calldata name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public onlyOwner
     {
         bytes32 labelhash = keccak256(bytes(name));
-        bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
-
-        if (!nameWrapper.isTokenOwnerOrApproved(nodehash, msg.sender)) {
-            revert Unauthorised(nodehash);
-        }
+        
+        // bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
+        // if (!nameWrapper.isTokenOwnerOrApproved(nodehash, msg.sender)) {
+        //     revert Unauthorised(nodehash);
+        // }
 
         uint256 tokenId = uint256(labelhash);
         uint256 expires;
         
-        if (nameWrapper.isWrapped(nodehash)) {
-            expires = nameWrapper.renew(
-                tokenId,
-                duration,
-                fuses,
-                wrapperExpiry
-            );
-        } else {
-            expires = base.renew(tokenId, duration);
-        }
+        expires = nameWrapper.renew(
+            tokenId,
+            duration,
+            fuses,
+            wrapperExpiry
+        );
 
         emit NameRenewed(name, labelhash, 0, expires);
     }
@@ -368,23 +370,13 @@ contract ETHRegistrarController is
         uint64 wrapperExpiry
     ) internal {
         bytes32 labelhash = keccak256(bytes(name));
-        bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
         uint256 tokenId = uint256(labelhash);
         IPriceOracle.Price memory price = rentPrice(name, duration);
         if (msg.value < price.base) {
             revert InsufficientValue();
         }
         uint256 expires;
-        if (nameWrapper.isWrapped(nodehash)) {
-            expires = nameWrapper.renew(
-                tokenId,
-                duration,
-                fuses,
-                wrapperExpiry
-            );
-        } else {
-            expires = base.renew(tokenId, duration);
-        }
+        expires = nameWrapper.renew(tokenId, duration, fuses, wrapperExpiry);
 
         if (msg.value > price.base) {
             payable(msg.sender).transfer(msg.value - price.base);
