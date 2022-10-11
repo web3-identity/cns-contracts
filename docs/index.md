@@ -1,25 +1,5 @@
 # Solidity API
 
-## Proxy1967
-
-### constructor
-
-```solidity
-constructor(address logic, bytes data) public
-```
-
-### implementation
-
-```solidity
-function implementation() public view returns (address)
-```
-
-### upgradeTo
-
-```solidity
-function upgradeTo(address newImplementation) public
-```
-
 ## BulkRenewal
 
 ### ETH_NAMEHASH
@@ -326,7 +306,7 @@ function commit(bytes32 commitment) public
 ### commitWithName
 
 ```solidity
-function commitWithName(bytes32 commitment, string name) public
+function commitWithName(bytes32 commitment, bytes32 label) public
 ```
 
 ### register
@@ -399,6 +379,26 @@ function _setRecords(address resolverAddress, bytes32 label, bytes[] data) inter
 
 ```solidity
 function _setReverseRecord(string name, address resolver, address owner) internal
+```
+
+## Proxy1967
+
+### constructor
+
+```solidity
+constructor(address logic, bytes data) public
+```
+
+### implementation
+
+```solidity
+function implementation() public view returns (address)
+```
+
+### upgradeTo
+
+```solidity
+function upgradeTo(address newImplementation) public
 ```
 
 ## Unauthorised
