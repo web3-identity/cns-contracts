@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ~0.8.17;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
@@ -33,9 +33,8 @@ error InvalidLabel(string name);
  * @dev A registrar controller for registering and renewing names at fixed cost.
  */
 contract ETHRegistrarController is
-    Ownable,
+    AccessControl,
     IETHRegistrarController,
-    IERC165,
     ERC20Recoverable,
     Initializable
 {
@@ -51,6 +50,7 @@ contract ETHRegistrarController is
         Registered
     }
 
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
     bytes32 private constant ETH_NODE =
         0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // CNS UPDATE: eth -> web3
@@ -100,6 +100,7 @@ contract ETHRegistrarController is
         ReverseRegistrar _reverseRegistrar,
         INameWrapper _nameWrapper
     ) public initializer {
+        _setupRole(ADMIN_ROLE, msg.sender);
         _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
     }
 
@@ -128,7 +129,7 @@ contract ETHRegistrarController is
     }
 
     // CNS UPDATE
-    function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public onlyOwner {
+    function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public onlyRole(ADMIN_ROLE) {
         if (_maxCommitmentAge <= _minCommitmentAge) {
             revert MaxCommitmentAgeTooLow();
         }
@@ -140,7 +141,7 @@ contract ETHRegistrarController is
     }
 
     // CNS UPDATE
-    function setNameWhitelist(INameWhitelist _nameWhitelist) public onlyOwner {
+    function setNameWhitelist(INameWhitelist _nameWhitelist) public onlyRole(ADMIN_ROLE) {
         nameWhitelist = _nameWhitelist;
     }
 
@@ -280,7 +281,7 @@ contract ETHRegistrarController is
         bool reverseRecord,
         uint32 fuses,
         uint64 wrapperExpiry
-    ) public onlyOwner {
+    ) public onlyRole(ADMIN_ROLE) {
         _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
     }
 
@@ -351,7 +352,7 @@ contract ETHRegistrarController is
     }
 
     // CNS UPDATE
-    function renewWithFiat(string calldata name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public onlyOwner
+    function renewWithFiat(string calldata name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public onlyRole(ADMIN_ROLE)
     {
         bytes32 labelhash = keccak256(bytes(name));
         
@@ -414,8 +415,9 @@ contract ETHRegistrarController is
     }
 
     function supportsInterface(bytes4 interfaceID)
-        external
+        public
         pure
+        override(AccessControl)
         returns (bool)
     {
         return
