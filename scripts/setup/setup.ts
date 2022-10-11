@@ -24,7 +24,7 @@ async function main() {
   const owner = await Registry.owner(ROOT_NODE);
   console.log('Root node owner', owner);
 
-  await basicSetup();
+//   await basicSetup();
 
   // await purchaseDomain();
 
