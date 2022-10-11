@@ -67,7 +67,7 @@ Submit commitment and also lock the name.
 ### Parameters
 
 * `commitment` bytes32 - commitment hash, calculated by makeCommitment method
-* `name` string - Second level domain name to register, eg `vilalik` for `vilalik.web3`
+* `label` bytes32 - `Second level domain name hash` to register, eg `vilalik` for `vilalik.web3`
 
 #### Method Signature
 
@@ -107,3 +107,44 @@ Only contract admin can call this method, no need to pay cfx.
 #### Parameters
 
 Same as register
+
+### renew
+
+Renew domain
+
+#### Parameters
+
+* `name` string - Second level domain name to register, eg `vilalik` for `vilalik.web3`
+* `duration` number - Domain duration in seconds
+
+#### Method Signature
+
+```js
+function renew(string calldata name, uint256 duration) external payable override;
+```
+
+### labelStatus
+
+Used to check the status of a label.
+
+#### Parameters
+
+* `label` string - Second level domain name to register, eg `vilalik` for `vilalik.web3`
+
+#### Return
+
+LabelStatus is a enum type, it has three values:
+
+* Valid - 0
+* TooShort - 1
+* Reserved - 2
+* IllegalChar - 3
+* Locked - 4
+* Registered - 5
+
+#### Method Signature
+
+```js
+function labelStatus(string memory _label) public view returns (LabelStatus);
+```
+

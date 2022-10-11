@@ -236,8 +236,8 @@ contract ETHRegistrarController is
     }
 
     // CNS UPDATE
-    function commitWithName(bytes32 commitment, string memory name) public {
-        bytes32 label = keccak256(bytes(name));
+    // NOTE: label should be related to the commitment
+    function commitWithName(bytes32 commitment, bytes32 label) public {
         require(labelAvailable(label), 'label occupied');
         labelCommitments[label] = block.timestamp;
 

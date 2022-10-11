@@ -35,3 +35,9 @@ Charge for `web3` subdomain registration, Check detail in [Controller](./Web3Con
 This contract worked as a wrapper for domain, it can used to wrap a domain name as 1155 NFT. When a domain is wrapped, domain owner need to invoke `NameWrapper`'s method to manage domain config for example `resolver`, `ttl`, `subRecord`.
 
 Check detail in [NameWrapper](./NameWrapper.md).
+
+## FAQs
+
+### How to query domain expire time?
+
+Use `BaseRegistrar`'s `nameExpires` method to query domain expire time.

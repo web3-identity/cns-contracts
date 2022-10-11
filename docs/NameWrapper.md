@@ -91,3 +91,17 @@ function setResolver(bytes32 node, address resolver)
 ```js
 function setTTL(bytes32 node, uint64 ttl)
 ```
+
+## userDomains
+
+This method can return all domains owned by an address.
+
+```js
+function userDomains(address user) public view returns (string[] memory);
+```
+
+## 1155 methods
+
+* setApprovalForAll
+* balanceOf
+* safeTransferFrom
