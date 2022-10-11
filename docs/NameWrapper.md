@@ -14,6 +14,8 @@ const name = 'domain.web3';
 const tokenId = namehash.hash(name);
 ```
 
+[NameWrapper contract API](./index.md#namewrapper-1)
+
 ## wrap/unwrap
 
 To wrap or unwrap a name, check this [introduction](https://github.com/ensdomains/ens-contracts/tree/master/contracts/wrapper#wrapping-a-name)
