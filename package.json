@@ -1,6 +1,6 @@
 {
-  "name": "@conflux-dev/cns-contracts",
-  "version": "1.0.0",
+  "name": "@web3identity/cns-contracts",
+  "version": "0.1.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "files": [
+    "contracts/**/*.sol",
+    "artifacts/contracts"
+  ],
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
     "@ethersproject/providers": "^5.4.7",
@@ -24,18 +28,19 @@
     "@types/mocha": "^9.1.0",
     "@types/node": ">=12.0.0",
     "chai": "^4.2.0",
+    "dotenv": "^16.0.2",
     "ethers": "^5.4.7",
     "hardhat": "^2.11.2",
+    "hardhat-abi-exporter": "^2.10.0",
     "hardhat-conflux": "^0.1.1",
     "hardhat-gas-reporter": "^1.0.8",
-    "solidity-coverage": "^0.8.0",
-    "ts-node": ">=8.0.0",
-    "typechain": "^8.1.0",
-    "typescript": ">=4.5.0",
-    "dotenv": "^16.0.2",
     "idna-uts46-hx": "^4.0.4",
     "js-conflux-sdk": "^2.1.6",
-    "solidity-docgen": "^0.6.0-beta.29"
+    "solidity-coverage": "^0.8.0",
+    "solidity-docgen": "^0.6.0-beta.29",
+    "ts-node": ">=8.0.0",
+    "typechain": "^8.1.0",
+    "typescript": ">=4.5.0"
   },
   "dependencies": {
     "@ensdomains/ens-contracts": "https://github.com/ensdomains/ens-contracts",

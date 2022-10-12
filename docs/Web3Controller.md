@@ -67,12 +67,12 @@ Submit commitment and also lock the name.
 ### Parameters
 
 * `commitment` bytes32 - commitment hash, calculated by makeCommitment method
-* `label` bytes32 - `Second level domain name hash` to register, eg `vilalik` for `vilalik.web3`
+* `label` bytes32 - `Second level domain name hash` to register, eg `labehash('vilalik')` for `vilalik.web3`
 
 #### Method Signature
 
 ```js
-function commitWithName(bytes32 commitment, string memory name) public override;
+function commitWithName(bytes32 commitment, string memory label) public override;
 ```
 
 ### register
