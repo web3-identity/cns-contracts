@@ -213,12 +213,7 @@ contract ETHRegistrarController is
         bool reverseRecord,
         uint32 fuses,
         uint64 wrapperExpiry
-    ) public view override returns (bytes32) {
-        LabelStatus _labelStatus = labelStatus(name);
-        if (_labelStatus != LabelStatus.Valid) {
-            revert InvalidLabel(name);
-        }
-
+    ) public pure override returns (bytes32) {
         bytes32 label = keccak256(bytes(name));
         if (data.length > 0 && resolver == address(0)) {
             revert ResolverRequiredWhenDataSupplied();
