@@ -148,3 +148,41 @@ LabelStatus is a enum type, it has three values:
 function labelStatus(string memory _label) public view returns (LabelStatus);
 ```
 
+### rentPrice
+
+Domain rent price in CFX
+
+#### Parameters
+
+* `name` string - Second level domain name to register, eg `vilalik` for `vilalik.web3`
+* `duration` number - Domain duration in seconds
+
+#### Return
+
+```js
+struct Price {
+    uint256 base;  // base price
+    uint256 premium; // premium price
+}
+```
+
+The real price is base + premium
+
+#### Method Signature
+
+```js
+function rentPrice(string memory name, uint256 duration) returns (ICFXPriceOracle.Price memory price);
+```
+
+### rentPriceInFiat
+
+Domain rent price in CFX
+
+#### Parameters
+
+* `name` string - Second level domain name to register, eg `vilalik` for `vilalik.web3`
+* `duration` number - Domain duration in seconds
+
+```js
+function rentPriceInFiat(string memory name, uint256 duration) returns (ICFXPriceOracle.Price memory price);
+```

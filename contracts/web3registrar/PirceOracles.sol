@@ -25,10 +25,17 @@ contract StablePriceOracle is IPriceOracle, Ownable {
     uint256 public price4Letter;
     uint256 public price5Letter;
 
+    // Rent in fiat base price units by length
+    uint256 public fiatPrice1Letter;
+    uint256 public fiatPrice2Letter;
+    uint256 public fiatPrice3Letter;
+    uint256 public fiatPrice4Letter;
+    uint256 public fiatPrice5Letter;
+
     // Oracle address
     AggregatorInterface public usdOracle;
 
-    event RentPriceChanged(uint256[] prices);
+    event RentPriceChanged(uint256[] prices, uint8 priceType);
 
     constructor(AggregatorInterface _usdOracle, uint256[] memory _rentPrices) {
         usdOracle = _usdOracle;
@@ -75,15 +82,15 @@ contract StablePriceOracle is IPriceOracle, Ownable {
         uint256 basePrice;
 
         if (len >= 5) {
-            basePrice = price5Letter * duration;
+            basePrice = fiatPrice5Letter * duration;
         } else if (len == 4) {
-            basePrice = price4Letter * duration;
+            basePrice = fiatPrice4Letter * duration;
         } else if (len == 3) {
-            basePrice = price3Letter * duration;
+            basePrice = fiatPrice3Letter * duration;
         } else if (len == 2) {
-            basePrice = price2Letter * duration;
+            basePrice = fiatPrice2Letter * duration;
         } else {
-            basePrice = price1Letter * duration;
+            basePrice = fiatPrice1Letter * duration;
         }
 
         return
@@ -142,6 +149,15 @@ contract StablePriceOracle is IPriceOracle, Ownable {
         price3Letter = _rentPrices[2];
         price4Letter = _rentPrices[3];
         price5Letter = _rentPrices[4];
-        emit RentPriceChanged(_rentPrices);
+        emit RentPriceChanged(_rentPrices, 0);  // crypto
+    }
+
+    function setFiatRentPrice(uint256[] memory _rentPrices) public onlyOwner {
+        fiatPrice1Letter = _rentPrices[0];
+        fiatPrice1Letter = _rentPrices[1];
+        fiatPrice1Letter = _rentPrices[2];
+        fiatPrice1Letter = _rentPrices[3];
+        fiatPrice1Letter = _rentPrices[4];
+        emit RentPriceChanged(_rentPrices, 1);  // fiat
     }
 }

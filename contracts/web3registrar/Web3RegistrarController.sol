@@ -10,11 +10,12 @@ import {BaseRegistrarImplementation} from "@ensdomains/ens-contracts/contracts/e
 import {StringUtils} from "@ensdomains/ens-contracts/contracts/ethregistrar/StringUtils.sol";
 import {Resolver} from "@ensdomains/ens-contracts/contracts/resolvers/Resolver.sol";
 import {ReverseRegistrar} from "@ensdomains/ens-contracts/contracts/registry/ReverseRegistrar.sol";
-import {IETHRegistrarController, IPriceOracle} from "@ensdomains/ens-contracts/contracts/ethregistrar/IETHRegistrarController.sol";
+import {IETHRegistrarController} from "@ensdomains/ens-contracts/contracts/ethregistrar/IETHRegistrarController.sol";
 import {INameWrapper} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
 import {ERC20Recoverable} from "@ensdomains/ens-contracts/contracts/utils/ERC20Recoverable.sol";
 
 import {INameWhitelist} from "./INameWhitelist.sol";
+import {IFiatPriceOracle} from "./IFiatPriceOracle.sol";
 
 error CommitmentTooNew(bytes32 commitment);
 error CommitmentTooOld(bytes32 commitment);
@@ -56,7 +57,7 @@ contract ETHRegistrarController is
         0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // CNS UPDATE: eth -> web3
     uint64 private constant MAX_EXPIRY = type(uint64).max;
     BaseRegistrarImplementation base;
-    IPriceOracle public prices;
+    IFiatPriceOracle public prices;
     uint256 public minCommitmentAge;
     uint256 public maxCommitmentAge;
     ReverseRegistrar public reverseRegistrar;
@@ -83,30 +84,30 @@ contract ETHRegistrarController is
 
     constructor(
         BaseRegistrarImplementation _base,
-        IPriceOracle _prices,
+        IFiatPriceOracle _prices,
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
         INameWrapper _nameWrapper
     ) {
+        _setupRole(ADMIN_ROLE, msg.sender);
         _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
     }
 
     function initialize(
         BaseRegistrarImplementation _base,
-        IPriceOracle _prices,
+        IFiatPriceOracle _prices,
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
         INameWrapper _nameWrapper
     ) public initializer {
-        _setupRole(ADMIN_ROLE, msg.sender);
         _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
     }
 
     function _init(
         BaseRegistrarImplementation _base,
-        IPriceOracle _prices,
+        IFiatPriceOracle _prices,
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
@@ -149,10 +150,19 @@ contract ETHRegistrarController is
         public
         view
         override
-        returns (IPriceOracle.Price memory price)
+        returns (IFiatPriceOracle.Price memory price)
     {
         bytes32 label = keccak256(bytes(name));
         price = prices.price(name, base.nameExpires(uint256(label)), duration);
+    }
+
+    function rentPriceInFiat(string memory name, uint256 duration)
+        public
+        view
+        returns (IFiatPriceOracle.Price memory price)
+    {
+        bytes32 label = keccak256(bytes(name));
+        price = prices.priceInFiat(name, base.nameExpires(uint256(label)), duration);
     }
 
     function valid(string memory name) public pure returns (bool) {
@@ -256,7 +266,7 @@ contract ETHRegistrarController is
         uint32 fuses,
         uint64 wrapperExpiry
     ) public payable override {
-        IPriceOracle.Price memory price = rentPrice(name, duration);
+        IFiatPriceOracle.Price memory price = rentPrice(name, duration);
         if (msg.value < price.base + price.premium) {
             revert InsufficientValue();
         }
@@ -296,7 +306,7 @@ contract ETHRegistrarController is
         uint32 fuses,
         uint64 wrapperExpiry
     ) internal returns (uint256) {
-        IPriceOracle.Price memory price = rentPrice(name, duration);
+        IFiatPriceOracle.Price memory price = rentPrice(name, duration);
 
         _consumeCommitment(
             name,
@@ -396,7 +406,7 @@ contract ETHRegistrarController is
     ) internal {
         bytes32 labelhash = keccak256(bytes(name));
         uint256 tokenId = uint256(labelhash);
-        IPriceOracle.Price memory price = rentPrice(name, duration);
+        IFiatPriceOracle.Price memory price = rentPrice(name, duration);
         if (msg.value < price.base) {
             revert InsufficientValue();
         }

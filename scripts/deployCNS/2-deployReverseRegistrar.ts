@@ -7,10 +7,11 @@ const {
 async function main() {
   // @ts-ignore
   const accounts = await conflux.getSigners();
+  const account = accounts[0];
   // @ts-ignore
   const ReverseRegistrar = await conflux.getContractFactory('ReverseRegistrar');
   const receipt = await ReverseRegistrar.constructor(process.env.ENS_REGISTRY).sendTransaction({
-    from: accounts[0].address,
+    from: account.address,
   }).executed();
   
   logReceipt(receipt, 'ReverseRegistrar');

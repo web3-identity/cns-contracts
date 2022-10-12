@@ -9,10 +9,11 @@ import path from 'path';
 async function main() {
   // @ts-ignore
   const accounts = await conflux.getSigners();
+  const account = accounts[0];
   // @ts-ignore
   const NameWhitelist = await conflux.getContractFactory('NameWhitelist');
   let receipt = await NameWhitelist.constructor().sendTransaction({
-    from: accounts[0].address,
+    from: account.address,
   }).executed();
   
   logReceipt(receipt, 'NameWhitelist');
@@ -21,11 +22,11 @@ async function main() {
   let nameWhitelist = await conflux.getContractAt('NameWhitelist', receipt.contractCreated);
   const emojis = await readEmojis();
   receipt = await nameWhitelist.setWhiteListBatch(emojis.join(''), true).sendTransaction({
-    from: accounts[0].address
+    from: account.address
   }).executed();
   logReceipt(receipt, 'setWhiteList');
 
-  feedReservedNames(nameWhitelist, accounts[0]);
+  await feedReservedNames(nameWhitelist, account);
 }
 
 main().catch(console.log);

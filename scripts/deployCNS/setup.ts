@@ -18,6 +18,7 @@ const {
     NAME_WRAPPER,
     WEB3_CONTROLLER,
     PUBLIC_RESOLVER,
+    NAME_WHITELIST,
 } = process.env;
 
 async function main() {
@@ -76,13 +77,13 @@ async function setup(account: any) {
     console.log('addr.reverse node owner', ownerOfReverse);
 
     // setup .web3 controller controller
-    receipt = await BaseRegistrarImplementation
+    /* receipt = await BaseRegistrarImplementation
         .addController(ETHRegistrarController.address)
         .sendTransaction({
             from: account
         })
         .executed();
-    logReceipt(receipt, 'Add web3 controller to base registrar');
+    logReceipt(receipt, 'Add web3 controller to base registrar'); */
 
     receipt = await BaseRegistrarImplementation
         .addController(NameWrapper.address)
@@ -112,4 +113,10 @@ async function setup(account: any) {
         })
         .executed();
     logReceipt(receipt, 'Set default resolver for reverse registrar');
+
+    receipt = await ETHRegistrarController.setNameWhitelist(NAME_WHITELIST).sendTransaction({
+        from: account
+    })
+    .executed();
+    logReceipt(receipt, 'Controller set NameWhitelist');
 }

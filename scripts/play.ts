@@ -30,7 +30,7 @@ async function main() {
 
     // await claimReverseDomain(account);
 
-    // await resolve(account);
+    await resolve(account);
 
     await registry();
 
@@ -135,7 +135,7 @@ async function registry() {
     // @ts-ignore
     const ENSRegistry = await conflux.getContractAt('ENSRegistry', ENS_REGISTRY);
 
-    const name = 'abcde3.web3';
+    const name = 'jiuhua1.web3';
 
     const node = namehash(name);
 

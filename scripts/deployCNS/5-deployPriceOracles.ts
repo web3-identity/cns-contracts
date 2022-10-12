@@ -7,12 +7,13 @@ const {
 async function main() {
   // @ts-ignore
   const accounts = await conflux.getSigners();
+  const account = accounts[0];
   
   // @ts-ignore
   const DummyOracle = await conflux.getContractFactory('CFXPriceOracle');
   const cfxPrice = BigInt(0.05 * 1e8);
   const receipt1 = await DummyOracle.constructor(cfxPrice).sendTransaction({
-    from: accounts[0].address,
+    from: account.address,
   }).executed();
   logReceipt(receipt1, 'CFXPriceOracle');
 
@@ -23,7 +24,7 @@ async function main() {
     pricesForOneYear[i] = pricesForOneYear[i] * BigInt(1e18) / (3600n * 24n * 365n);
   }
   const receipt = await StablePriceOracle.constructor(receipt1.contractCreated, pricesForOneYear).sendTransaction({
-    from: accounts[0].address,
+    from: account.address,
   }).executed();
   
   logReceipt(receipt, 'StablePriceOracle');
