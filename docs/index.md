@@ -1,5 +1,167 @@
 # Solidity API
 
+## AggregatorInterface
+
+### latestAnswer
+
+```solidity
+function latestAnswer() external view returns (int256)
+```
+
+## StablePriceOracle
+
+### price1Letter
+
+```solidity
+uint256 price1Letter
+```
+
+### price2Letter
+
+```solidity
+uint256 price2Letter
+```
+
+### price3Letter
+
+```solidity
+uint256 price3Letter
+```
+
+### price4Letter
+
+```solidity
+uint256 price4Letter
+```
+
+### price5Letter
+
+```solidity
+uint256 price5Letter
+```
+
+### fiatPrice1Letter
+
+```solidity
+uint256 fiatPrice1Letter
+```
+
+### fiatPrice2Letter
+
+```solidity
+uint256 fiatPrice2Letter
+```
+
+### fiatPrice3Letter
+
+```solidity
+uint256 fiatPrice3Letter
+```
+
+### fiatPrice4Letter
+
+```solidity
+uint256 fiatPrice4Letter
+```
+
+### fiatPrice5Letter
+
+```solidity
+uint256 fiatPrice5Letter
+```
+
+### usdOracle
+
+```solidity
+contract AggregatorInterface usdOracle
+```
+
+### RentPriceChanged
+
+```solidity
+event RentPriceChanged(uint256[] prices, uint8 priceType)
+```
+
+### constructor
+
+```solidity
+constructor(contract AggregatorInterface _usdOracle, uint256[] _rentPrices) public
+```
+
+### price
+
+```solidity
+function price(string name, uint256 expires, uint256 duration) external view returns (struct IPriceOracle.Price)
+```
+
+_Returns the price to register or renew a name._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| name | string | The name being registered or renewed. |
+| expires | uint256 | When the name presently expires (0 if this is a new registration). |
+| duration | uint256 | How long the name is being registered or extended for, in seconds. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct IPriceOracle.Price | base premium tuple of base price + premium price |
+
+### priceInFiat
+
+```solidity
+function priceInFiat(string name, uint256 expires, uint256 duration) external view returns (struct IPriceOracle.Price)
+```
+
+### premium
+
+```solidity
+function premium(string name, uint256 expires, uint256 duration) external view returns (uint256)
+```
+
+_Returns the pricing premium in wei._
+
+### _premium
+
+```solidity
+function _premium(string name, uint256 expires, uint256 duration) internal view virtual returns (uint256)
+```
+
+_Returns the pricing premium in internal base units._
+
+### attoUSDToWei
+
+```solidity
+function attoUSDToWei(uint256 amount) internal view returns (uint256)
+```
+
+### weiToAttoUSD
+
+```solidity
+function weiToAttoUSD(uint256 amount) internal view returns (uint256)
+```
+
+### supportsInterface
+
+```solidity
+function supportsInterface(bytes4 interfaceID) public view virtual returns (bool)
+```
+
+### setRentPrice
+
+```solidity
+function setRentPrice(uint256[] _rentPrices) public
+```
+
+### setFiatRentPrice
+
+```solidity
+function setFiatRentPrice(uint256[] _rentPrices) public
+```
+
 ## BulkRenewal
 
 ### ETH_NAMEHASH
@@ -42,6 +204,14 @@ function renewAll(string[] names, uint256 duration) external payable
 
 ```solidity
 function supportsInterface(bytes4 interfaceID) external pure returns (bool)
+```
+
+## IFiatPriceOracle
+
+### priceInFiat
+
+```solidity
+function priceInFiat(string name, uint256 expires, uint256 duration) external view returns (struct IPriceOracle.Price)
 ```
 
 ## INameWhitelist
@@ -147,6 +317,12 @@ enum LabelStatus {
 }
 ```
 
+### ADMIN_ROLE
+
+```solidity
+bytes32 ADMIN_ROLE
+```
+
 ### MIN_REGISTRATION_DURATION
 
 ```solidity
@@ -174,7 +350,7 @@ contract BaseRegistrarImplementation base
 ### prices
 
 ```solidity
-contract IPriceOracle prices
+contract IFiatPriceOracle prices
 ```
 
 ### minCommitmentAge
@@ -234,19 +410,19 @@ event NameRenewed(string name, bytes32 label, uint256 cost, uint256 expires)
 ### constructor
 
 ```solidity
-constructor(contract BaseRegistrarImplementation _base, contract IPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract INameWrapper _nameWrapper) public
+constructor(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract INameWrapper _nameWrapper) public
 ```
 
 ### initialize
 
 ```solidity
-function initialize(contract BaseRegistrarImplementation _base, contract IPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract INameWrapper _nameWrapper) public
+function initialize(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract INameWrapper _nameWrapper) public
 ```
 
 ### _init
 
 ```solidity
-function _init(contract BaseRegistrarImplementation _base, contract IPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract INameWrapper _nameWrapper) internal
+function _init(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract INameWrapper _nameWrapper) internal
 ```
 
 ### setCommitmentAge
@@ -265,6 +441,12 @@ function setNameWhitelist(contract INameWhitelist _nameWhitelist) public
 
 ```solidity
 function rentPrice(string name, uint256 duration) public view returns (struct IPriceOracle.Price price)
+```
+
+### rentPriceInFiat
+
+```solidity
+function rentPriceInFiat(string name, uint256 duration) public view returns (struct IPriceOracle.Price price)
 ```
 
 ### valid
@@ -360,7 +542,7 @@ function withdraw() public
 ### supportsInterface
 
 ```solidity
-function supportsInterface(bytes4 interfaceID) external pure returns (bool)
+function supportsInterface(bytes4 interfaceID) public pure returns (bool)
 ```
 
 ### _consumeCommitment
@@ -379,26 +561,6 @@ function _setRecords(address resolverAddress, bytes32 label, bytes[] data) inter
 
 ```solidity
 function _setReverseRecord(string name, address resolver, address owner) internal
-```
-
-## Proxy1967
-
-### constructor
-
-```solidity
-constructor(address logic, bytes data) public
-```
-
-### implementation
-
-```solidity
-function implementation() public view returns (address)
-```
-
-### upgradeTo
-
-```solidity
-function upgradeTo(address newImplementation) public
 ```
 
 ## Unauthorised
@@ -521,6 +683,12 @@ uint64 MAX_EXPIRY
 
 ```solidity
 mapping(address => struct EnumerableSet.Bytes32Set) userNodes
+```
+
+### _userOperators
+
+```solidity
+mapping(address => struct EnumerableSet.AddressSet) _userOperators
 ```
 
 ### constructor
@@ -1050,6 +1218,12 @@ _Both of these checks need to be true to be considered wrapped if checked withou
 function onERC721Received(address to, address, uint256 tokenId, bytes data) public returns (bytes4)
 ```
 
+### setApprovalForAll
+
+```solidity
+function setApprovalForAll(address operator, bool approved) public virtual
+```
+
 ### safeTransferFrom
 
 ```solidity
@@ -1078,6 +1252,12 @@ function userNodeSet(address user) public view returns (bytes32[])
 
 ```solidity
 function userDomains(address user) public view returns (string[])
+```
+
+### userOperators
+
+```solidity
+function userOperators(address user) public view returns (address[])
 ```
 
 ### _canTransfer
@@ -1194,6 +1374,26 @@ function _canFusesBeBurned(bytes32 node, uint32 fuses) internal pure
 function _checkForParentCannotControl(bytes32 node, uint32 fuses) internal view
 ```
 
+## Proxy1967
+
+### constructor
+
+```solidity
+constructor(address logic, bytes data) public
+```
+
+### implementation
+
+```solidity
+function implementation() public view returns (address)
+```
+
+### upgradeTo
+
+```solidity
+function upgradeTo(address newImplementation) public
+```
+
 ## NameWhitelist
 
 ### ZERO_WIDTH_SPACE
@@ -1306,10 +1506,22 @@ string CHAR_WHITE_LIST
 string EMOJI_WHITE_LIST
 ```
 
+### EMOJI_BLACK_LIST
+
+```solidity
+string EMOJI_BLACK_LIST
+```
+
 ### whiteList
 
 ```solidity
 mapping(string => bool) whiteList
+```
+
+### blackList
+
+```solidity
+mapping(string => bool) blackList
 ```
 
 ### specialNames
@@ -1342,6 +1554,12 @@ function checkContainBytes(string toCheck, bytes toFind) public pure returns (bo
 function isLabelValid(string _label) public view returns (bool)
 ```
 
+### isInEmojiBlackList
+
+```solidity
+function isInEmojiBlackList(string toCheck) public view returns (bool)
+```
+
 ### isInWhiteList
 
 ```solidity
@@ -1354,16 +1572,10 @@ function isInWhiteList(string toCheck) public view returns (bool)
 function isReserved(string label) public view returns (bool)
 ```
 
-### setSpecialName
+### setSpecialNames
 
 ```solidity
-function setSpecialName(string name, bool isSpecial) public
-```
-
-### setSpecialNameBatch
-
-```solidity
-function setSpecialNameBatch(string[] names, bool isSpecial) public
+function setSpecialNames(string name, bool isSpecial) public
 ```
 
 ### setWhiteList
@@ -1372,136 +1584,10 @@ function setSpecialNameBatch(string[] names, bool isSpecial) public
 function setWhiteList(string name, bool isWhite) public
 ```
 
-### setWhiteListBatch
+### setBlackList
 
 ```solidity
-function setWhiteListBatch(string name, bool isWhite) public
-```
-
-## AggregatorInterface
-
-### latestAnswer
-
-```solidity
-function latestAnswer() external view returns (int256)
-```
-
-## StablePriceOracle
-
-### price1Letter
-
-```solidity
-uint256 price1Letter
-```
-
-### price2Letter
-
-```solidity
-uint256 price2Letter
-```
-
-### price3Letter
-
-```solidity
-uint256 price3Letter
-```
-
-### price4Letter
-
-```solidity
-uint256 price4Letter
-```
-
-### price5Letter
-
-```solidity
-uint256 price5Letter
-```
-
-### usdOracle
-
-```solidity
-contract AggregatorInterface usdOracle
-```
-
-### RentPriceChanged
-
-```solidity
-event RentPriceChanged(uint256[] prices)
-```
-
-### constructor
-
-```solidity
-constructor(contract AggregatorInterface _usdOracle, uint256[] _rentPrices) public
-```
-
-### price
-
-```solidity
-function price(string name, uint256 expires, uint256 duration) external view returns (struct IPriceOracle.Price)
-```
-
-_Returns the price to register or renew a name._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| name | string | The name being registered or renewed. |
-| expires | uint256 | When the name presently expires (0 if this is a new registration). |
-| duration | uint256 | How long the name is being registered or extended for, in seconds. |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct IPriceOracle.Price | base premium tuple of base price + premium price |
-
-### priceInFiat
-
-```solidity
-function priceInFiat(string name, uint256 expires, uint256 duration) external view returns (struct IPriceOracle.Price)
-```
-
-### premium
-
-```solidity
-function premium(string name, uint256 expires, uint256 duration) external view returns (uint256)
-```
-
-_Returns the pricing premium in wei._
-
-### _premium
-
-```solidity
-function _premium(string name, uint256 expires, uint256 duration) internal view virtual returns (uint256)
-```
-
-_Returns the pricing premium in internal base units._
-
-### attoUSDToWei
-
-```solidity
-function attoUSDToWei(uint256 amount) internal view returns (uint256)
-```
-
-### weiToAttoUSD
-
-```solidity
-function weiToAttoUSD(uint256 amount) internal view returns (uint256)
-```
-
-### supportsInterface
-
-```solidity
-function supportsInterface(bytes4 interfaceID) public view virtual returns (bool)
-```
-
-### setRentPrice
-
-```solidity
-function setRentPrice(uint256[] _rentPrices) public
+function setBlackList(string name, bool isBlack) public
 ```
 
 ## Lock
