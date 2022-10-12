@@ -100,8 +100,10 @@ contract ETHRegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        INameWrapper _nameWrapper
+        INameWrapper _nameWrapper,
+        address _admin
     ) public initializer {
+        _setupRole(ADMIN_ROLE, _admin);
         _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
     }
 

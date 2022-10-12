@@ -52,10 +52,28 @@ async function main() {
 
   const minCommitmentAge = 120 // s
   const maxCommitmentAge = 3600 * 10; // s
-  const ETHRegistrarController = await ethers.getContractFactory("ETHRegistrarController");
-  const ethRegistrarController = await ETHRegistrarController.deploy(baseRegistrarImplementation.address, stablePriceOracle.address, minCommitmentAge, maxCommitmentAge, reverseRegistrar.address, nameWrapper.address);
+  const ControllerContractFullName = "contracts/web3registrar/Web3RegistrarController.sol:ETHRegistrarController";
+  const ETHRegistrarController = await ethers.getContractFactory(ControllerContractFullName);
+  let ethRegistrarController = await ETHRegistrarController.deploy(baseRegistrarImplementation.address, stablePriceOracle.address, minCommitmentAge, maxCommitmentAge, reverseRegistrar.address, nameWrapper.address);
   await ethRegistrarController.deployed();
   console.log(`ETHRegistrarController deployed to ${ethRegistrarController.address}`);
+
+  // deploy ethController proxy
+  const controllerInitData = ethRegistrarController.interface.encodeFunctionData('initialize', [
+    baseRegistrarImplementation.address,
+    stablePriceOracle.address,
+    minCommitmentAge,
+    maxCommitmentAge,
+    reverseRegistrar.address,
+    nameWrapper.address,
+    signers[0].address,
+  ]);
+  //   console.log('initialize data', controllerInitData);
+  const Proxy1967 = await ethers.getContractFactory("Proxy1967");
+  const proxy1967 = await Proxy1967.deploy(ethRegistrarController.address, controllerInitData);
+  await proxy1967.deployed();
+  ethRegistrarController = await ethers.getContractAt(ControllerContractFullName, proxy1967.address);
+
 
   const NameWhitelist = await ethers.getContractFactory("NameWhitelist");
   const nameWhitelist = await NameWhitelist.deploy();
@@ -77,8 +95,8 @@ async function main() {
   tx = await ensRegistry.setSubnodeOwner(namehash('reverse'), labelhash('addr'), reverseRegistrar.address)
   await tx.wait();
 
-  tx = await baseRegistrarImplementation.addController(ethRegistrarController.address);
-  await tx.wait();
+//   tx = await baseRegistrarImplementation.addController(ethRegistrarController.address);
+//   await tx.wait();
 
   tx = await baseRegistrarImplementation.addController(nameWrapper.address);
   await tx.wait();
@@ -107,7 +125,11 @@ async function main() {
   console.log(`price: ${price[0]}`);
 
   const commitment = await ethRegistrarController.makeCommitment(toBuy, signers[0].address, ONE_YEAR, labelhash(toBuy), publicResolver.address, [], true, 0, ONE_YEAR);
-  tx = await ethRegistrarController.commit(commitment);
+  
+//   tx = await ethRegistrarController.commit(commitment);
+//   await tx.wait();
+
+  tx = await ethRegistrarController.commitWithName(commitment, labelhash(toBuy));
   await tx.wait();
 
   await mine(1000);

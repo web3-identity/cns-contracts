@@ -26,15 +26,15 @@ async function main() {
     const accounts = await conflux.getSigners();
     const account = accounts[0];
     
-    // await purchaseDomain(account);
+    await purchaseDomain(account);
 
     // await claimReverseDomain(account);
 
-    await resolve(account);
+    // await resolve(account);
 
-    await registry();
+    // await registry();
 
-    await nameWrapper();
+    // await nameWrapper();
 }
 
 main().catch(console.log);
@@ -45,22 +45,19 @@ async function purchaseDomain(account: any) {
     // @ts-ignore
     const PublicResolver = await conflux.getContractAt('PublicResolver', PUBLIC_RESOLVER);
 
-    const toBuy = 'jiuhua1';
+    const toBuy = 'jiuhua3';
 
     let receipt
   
     /* const valid = await Web3Controller.valid(toBuy);
     console.log(`Is ${toBuy} valid`, valid);
-  
     const available = await Web3Controller.available(toBuy);
     console.log(`Is ${toBuy} available`, available);
-  
     const rentPrice = await Web3Controller.rentPrice(toBuy, ONE_YEAR);
     console.log(`Rent price of ${toBuy}`, new Drip(rentPrice[0]).toCFX(), 'CFX');
-  
+    
     const commitment = await Web3Controller
         .makeCommitment(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR);
-  
     
     receipt = await Web3Controller
         .commit(commitment).sendTransaction({
@@ -68,6 +65,13 @@ async function purchaseDomain(account: any) {
         })
         .executed();
     logReceipt(receipt, 'Commit'); */
+
+    // receipt = await Web3Controller
+    //     .commitWithName(commitment, labelhash(toBuy)).sendTransaction({
+    //         from: account
+    //     })
+    //     .executed();
+    // logReceipt(receipt, 'CommitWithName');
 
     // TODO, need wait for two minutes
   

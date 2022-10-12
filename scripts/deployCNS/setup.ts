@@ -119,4 +119,5 @@ async function setup(account: any) {
     })
     .executed();
     logReceipt(receipt, 'Controller set NameWhitelist');
+
 }
