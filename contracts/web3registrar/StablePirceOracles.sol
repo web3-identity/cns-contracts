@@ -73,6 +73,7 @@ contract StablePriceOracle is IPriceOracle, Ownable {
             });
     }
 
+    // TODO: special names solo price
     function priceInFiat(
         string calldata name,
         uint256 expires,

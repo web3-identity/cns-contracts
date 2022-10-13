@@ -1,5 +1,5 @@
 import hre from 'hardhat';
-import { format, Drip, Contract } from 'js-conflux-sdk'
+import { format, Drip, Contract, address } from 'js-conflux-sdk'
 import { 
     logReceipt, 
     ROOT_NODE, 
@@ -26,11 +26,11 @@ async function main() {
     const accounts = await conflux.getSigners();
     const account = accounts[0];
     
-    await purchaseDomain(account);
+    // await purchaseDomain(account);
 
     // await claimReverseDomain(account);
 
-    // await resolve(account);
+    await resolve(account);
 
     // await registry();
 
@@ -130,7 +130,13 @@ async function resolve(account: any) {
         from: account
     }).executed(); */
 
-    const addr = await PublicResolver.addr(node);
+    const { hexAddress: addressInBytes } = address.decodeCfxAddress(account.address);
+    console.log('addressInBytes', addressInBytes);
+    let tx = await PublicResolver.setAddr(node, 503, addressInBytes).sendTransaction({
+        from: account
+    }).executed();
+
+    const addr = await PublicResolver.addr(node, 503);
     console.log('addr', addr);
     
 }

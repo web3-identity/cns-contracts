@@ -70,6 +70,7 @@ contract NameWrapper is
     mapping(address => EnumerableSet.Bytes32Set) private userNodes;
     mapping(address => EnumerableSet.AddressSet) private _userOperators;
     uint256 public tokenCount;
+    uint256 public label45Count;  // count of label 4 or 5 domain
 
     constructor(
         ENS _ens,
@@ -918,13 +919,20 @@ contract NameWrapper is
         // CNS UPDATE: update userNodes 
         userNodes[owner].add(node);
         tokenCount += 1;
+        if (names[node].length == 11 || names[node].length == 12) {
+            label45Count += 1;
+        }
     }
 
     function _burn(uint256 tokenId) internal override {
-        // CNS UPDATE: update userNodes 
+        // CNS UPDATE: update userNodes
         (address oldOwner, ,) = getData(tokenId);
-        userNodes[oldOwner].remove(bytes32(tokenId));
+        bytes32 node = bytes32(tokenId);
+        userNodes[oldOwner].remove(node);
         tokenCount -= 1;
+        if (names[node].length == 11 || names[node].length == 12) {
+            label45Count -= 1;
+        }
 
         super._burn(tokenId);
     }

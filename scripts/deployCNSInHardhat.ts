@@ -44,7 +44,7 @@ export async function deployCNS() {
   for(let i = 0; i < pricesForOneYear.length; i++) {
     pricesForOneYear[i] = pricesForOneYear[i] * BigInt(1e18) / (3600n * 24n * 365n);
   }
-  const StablePriceOracle = await ethers.getContractFactory("contracts/web3registrar/PirceOracles.sol:StablePriceOracle");
+  const StablePriceOracle = await ethers.getContractFactory("contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle");
   const stablePriceOracle = await StablePriceOracle.deploy(cfxPriceOracle.address, pricesForOneYear);
   await stablePriceOracle.deployed();
 //   console.log(`StablePriceOracle deployed to ${stablePriceOracle.address}`);

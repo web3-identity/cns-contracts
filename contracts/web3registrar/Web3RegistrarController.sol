@@ -67,6 +67,7 @@ contract ETHRegistrarController is
     mapping(bytes32 => uint256) public commitments;
     mapping(bytes32 => uint256) public labelCommitments; // CNS UPDATE
     mapping(bytes32 => bytes32) public commitmentLabels; // CNS UPDATE
+    uint256 private validLen = 4;
 
     event NameRegistered(
         string name,
@@ -149,6 +150,12 @@ contract ETHRegistrarController is
         nameWhitelist = _nameWhitelist;
     }
 
+    // CNS UPDATE
+    function setValidLen(uint256 _len) public onlyRole(ADMIN_ROLE) {
+        require(_len > 1, "minimal len is 2");
+        validLen = _len;
+    }
+
     function rentPrice(string memory name, uint256 duration)
         public
         view
@@ -169,8 +176,8 @@ contract ETHRegistrarController is
         price = prices.priceInFiat(name, base.nameExpires(uint256(label)), duration);
     }
 
-    function valid(string memory name) public pure returns (bool) {
-        return name.strlen() > 3;
+    function valid(string memory name) public view returns (bool) {
+        return name.strlen() >= validLen;
     }
 
     function available(string memory name) public view override returns (bool) {

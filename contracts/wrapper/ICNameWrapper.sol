@@ -6,4 +6,5 @@ import {INameWrapper} from "@ensdomains/ens-contracts/contracts/wrapper/INameWra
 
 interface ICNameWrapper is INameWrapper {
     function tokenCount() external view returns (uint256);
+    function label45Count() external view returns (uint256);
 }
