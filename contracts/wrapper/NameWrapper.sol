@@ -69,6 +69,7 @@ contract NameWrapper is
     // Update places: _mint, _burn, transfer
     mapping(address => EnumerableSet.Bytes32Set) private userNodes;
     mapping(address => EnumerableSet.AddressSet) private _userOperators;
+    uint256 public tokenCount;
 
     constructor(
         ENS _ens,
@@ -916,12 +917,14 @@ contract NameWrapper is
 
         // CNS UPDATE: update userNodes 
         userNodes[owner].add(node);
+        tokenCount += 1;
     }
 
     function _burn(uint256 tokenId) internal override {
         // CNS UPDATE: update userNodes 
         (address oldOwner, ,) = getData(tokenId);
         userNodes[oldOwner].remove(bytes32(tokenId));
+        tokenCount -= 1;
 
         super._burn(tokenId);
     }

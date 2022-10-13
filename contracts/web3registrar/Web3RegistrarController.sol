@@ -11,11 +11,11 @@ import {StringUtils} from "@ensdomains/ens-contracts/contracts/ethregistrar/Stri
 import {Resolver} from "@ensdomains/ens-contracts/contracts/resolvers/Resolver.sol";
 import {ReverseRegistrar} from "@ensdomains/ens-contracts/contracts/registry/ReverseRegistrar.sol";
 import {IETHRegistrarController} from "@ensdomains/ens-contracts/contracts/ethregistrar/IETHRegistrarController.sol";
-import {INameWrapper} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
 import {ERC20Recoverable} from "@ensdomains/ens-contracts/contracts/utils/ERC20Recoverable.sol";
 
 import {INameWhitelist} from "./INameWhitelist.sol";
 import {IFiatPriceOracle} from "./IFiatPriceOracle.sol";
+import {ICNameWrapper} from '../wrapper/ICNameWrapper.sol';
 
 error CommitmentTooNew(bytes32 commitment);
 error CommitmentTooOld(bytes32 commitment);
@@ -61,7 +61,7 @@ contract ETHRegistrarController is
     uint256 public minCommitmentAge;
     uint256 public maxCommitmentAge;
     ReverseRegistrar public reverseRegistrar;
-    INameWrapper public nameWrapper;
+    ICNameWrapper public nameWrapper;
     INameWhitelist public nameWhitelist; // CNS UPDATE
 
     mapping(bytes32 => uint256) public commitments;
@@ -89,7 +89,7 @@ contract ETHRegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        INameWrapper _nameWrapper
+        ICNameWrapper _nameWrapper
     ) {
         _setupRole(ADMIN_ROLE, msg.sender);
         _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
@@ -101,7 +101,7 @@ contract ETHRegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        INameWrapper _nameWrapper,
+        ICNameWrapper _nameWrapper,
         address _admin
     ) public initializer {
         _setupRole(ADMIN_ROLE, _admin);
@@ -114,7 +114,7 @@ contract ETHRegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        INameWrapper _nameWrapper
+        ICNameWrapper _nameWrapper
     ) internal {
         if (_maxCommitmentAge <= _minCommitmentAge) {
             revert MaxCommitmentAgeTooLow();
@@ -159,6 +159,7 @@ contract ETHRegistrarController is
         price = prices.price(name, base.nameExpires(uint256(label)), duration);
     }
 
+    // CNS UPDATE
     function rentPriceInFiat(string memory name, uint256 duration)
         public
         view
