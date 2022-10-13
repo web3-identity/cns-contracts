@@ -1,6 +1,6 @@
 {
   "name": "@web3identity/cns-contracts",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,12 @@
   "author": "",
   "license": "ISC",
   "files": [
+    "build/contracts/ENS.json",
+    "build/contracts/BaseRegistrarImplementation.json",
+    "build/contracts/ETHRegistrarController.json",
+    "build/contracts/PublicResolver.json",
+    "build/contracts/NameWrapper.json",
+    "build/contracts/ReverseRegistrar.json",
     "contracts/**/*.sol",
     "artifacts/contracts"
   ],

@@ -1,7 +1,17 @@
-const Web3RegistrarController = require('./artifacts/contracts/web3registrar/Web3RegistrarController.sol/ETHRegistrarController.json').abi;
-const NameWrapper = require('./artifacts/contracts/wrapper/NameWrapper.sol/NameWrapper.json').abi;
+const ENS = require('./build/contracts/ENS')
+const BaseRegistrarImplementation = require('./build/contracts/BaseRegistrarImplementation')
+const ETHRegistrarController = require('./build/contracts/ETHRegistrarController')
+const PublicResolver = require('./build/contracts/PublicResolver')
+const ReverseRegistrar = require('./build/contracts/ReverseRegistrar')
+const NameWrapper = require('./build/contracts/NameWrapper')
 
 module.exports = {
-    Web3RegistrarController,
-    NameWrapper
+  BaseRegistrarImplementation,
+  ENS,
+  CNS: ENS,
+  ETHRegistrarController,
+  Web3RegistrarController: ETHRegistrarController,
+  PublicResolver,
+  ReverseRegistrar,
+  NameWrapper,
 }
