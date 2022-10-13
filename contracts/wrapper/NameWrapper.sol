@@ -67,10 +67,10 @@ contract NameWrapper is
     // CNS UPDATE: used for enumerate all web3 domains of one address
     // owner => web3 node set
     // Update places: _mint, _burn, transfer
-    mapping(address => EnumerableSet.Bytes32Set) private userNodes;
+    mapping(address => EnumerableSet.Bytes32Set) private _userNodes;
     mapping(address => EnumerableSet.AddressSet) private _userOperators;
     uint256 public tokenCount;
-    uint256 public label45Count;  // count of label 4 or 5 domain
+    uint256 public label45Count; // count of label lengh is  4-5
 
     constructor(
         ENS _ens,
@@ -90,7 +90,6 @@ contract NameWrapper is
         metadataService = _metadataService;
 
         /* Burn PARENT_CANNOT_CONTROL and CANNOT_UNWRAP fuses for ROOT_NODE and ETH_NODE */
-
         _setData(
             uint256(ETH_NODE),
             address(0),
@@ -103,6 +102,7 @@ contract NameWrapper is
             uint32(PARENT_CANNOT_CONTROL | CANNOT_UNWRAP),
             MAX_EXPIRY
         );
+        
         names[ROOT_NODE] = "\x00";
         names[ETH_NODE] = "\x04web3\x00"; // eth -> web3
     }
@@ -852,12 +852,12 @@ contract NameWrapper is
 
     function _updateNodeOwner(address from, address to, uint256 id) internal {
         bytes32 node = bytes32(id);
-        userNodes[from].remove(node);
-        userNodes[to].add(node);
+        _userNodes[from].remove(node);
+        _userNodes[to].add(node);
     }
 
     function userNodeSet(address user) public view returns (bytes32[] memory) {
-        return userNodes[user].values();
+        return _userNodes[user].values();
     }
 
     function userDomains(address user) public view returns (string[] memory) {
@@ -917,7 +917,7 @@ contract NameWrapper is
         super._mint(node, owner, fuses, expiry);
 
         // CNS UPDATE: update userNodes 
-        userNodes[owner].add(node);
+        _userNodes[owner].add(node);
         tokenCount += 1;
         if (names[node].length == 11 || names[node].length == 12) {
             label45Count += 1;
@@ -928,7 +928,7 @@ contract NameWrapper is
         // CNS UPDATE: update userNodes
         (address oldOwner, ,) = getData(tokenId);
         bytes32 node = bytes32(tokenId);
-        userNodes[oldOwner].remove(node);
+        _userNodes[oldOwner].remove(node);
         tokenCount -= 1;
         if (names[node].length == 11 || names[node].length == 12) {
             label45Count -= 1;

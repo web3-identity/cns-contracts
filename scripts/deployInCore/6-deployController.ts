@@ -9,7 +9,7 @@ async function main() {
   const accounts = await conflux.getSigners();
   const account = accounts[0];
   // @ts-ignore
-  const WEB3RegistrarController = await conflux.getContractFactory('ETHRegistrarController');
+  const WEB3RegistrarController = await conflux.getContractFactory('Web3RegistrarController');
   const minCommitmentAge = 30; // s
   const maxCommitmentAge = 600; // s
   const receipt = await WEB3RegistrarController.constructor(
@@ -27,7 +27,7 @@ async function main() {
 
     const implAddr = receipt.contractCreated;
     // @ts-ignore
-    const controller = await conflux.getContractAt('ETHRegistrarController', implAddr);
+    const controller = await conflux.getContractAt('Web3RegistrarController', implAddr);
     const controllerInitData = controller.initialize(
         process.env.BASE_REGISTRAR, 
         process.env.STABLE_ORACLE, 
@@ -42,7 +42,7 @@ async function main() {
     const receipt2 = await Proxy1967.constructor(implAddr, controllerInitData).sendTransaction({
         from: account.address,
     }).executed();
-    logReceipt(receipt2, 'RegistrarController Proxy');
+    logReceipt(receipt2, 'Web3RegistrarController Proxy');
 }
 
 main().catch(console.log);

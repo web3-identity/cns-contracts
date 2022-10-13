@@ -33,7 +33,7 @@ error InvalidLabel(string name);
 /**
  * @dev A registrar controller for registering and renewing names at fixed cost.
  */
-contract ETHRegistrarController is
+contract Web3RegistrarController is
     AccessControl,
     IETHRegistrarController,
     ERC20Recoverable,

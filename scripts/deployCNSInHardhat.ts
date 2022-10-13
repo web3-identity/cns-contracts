@@ -59,7 +59,7 @@ export async function deployCNS() {
 
   const minCommitmentAge = 30 // s
   const maxCommitmentAge = 600; // s
-  const ControllerContractFullName = "contracts/web3registrar/Web3RegistrarController.sol:ETHRegistrarController";
+  const ControllerContractFullName = "Web3RegistrarController";
   const ETHRegistrarController = await ethers.getContractFactory(ControllerContractFullName);
   let ethRegistrarController = await ETHRegistrarController.deploy(baseRegistrarImplementation.address, stablePriceOracle.address, minCommitmentAge, maxCommitmentAge, reverseRegistrar.address, nameWrapper.address);
   await ethRegistrarController.deployed();
