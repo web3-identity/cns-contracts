@@ -10,8 +10,8 @@ async function main() {
   const account = accounts[0];
   // @ts-ignore
   const WEB3RegistrarController = await conflux.getContractFactory('ETHRegistrarController');
-  const minCommitmentAge = 120; // s
-  const maxCommitmentAge = 3600; // s
+  const minCommitmentAge = 30; // s
+  const maxCommitmentAge = 600; // s
   const receipt = await WEB3RegistrarController.constructor(
     process.env.BASE_REGISTRAR, 
     process.env.STABLE_ORACLE, 

@@ -66,6 +66,7 @@ contract ETHRegistrarController is
 
     mapping(bytes32 => uint256) public commitments;
     mapping(bytes32 => uint256) public labelCommitments; // CNS UPDATE
+    mapping(bytes32 => bytes32) public commitmentLabels; // CNS UPDATE
 
     event NameRegistered(
         string name,
@@ -178,7 +179,7 @@ contract ETHRegistrarController is
 
     // CNS UPDATE
     function labelAvailable(bytes32 label) public view returns (bool) {
-        return labelCommitments[label] + maxCommitmentAge <= block.timestamp;
+        return labelCommitments[label] == 0 || labelCommitments[label] + maxCommitmentAge <= block.timestamp;
     }
 
     // CNS UPDATE
@@ -248,6 +249,7 @@ contract ETHRegistrarController is
     function commitWithName(bytes32 commitment, bytes32 label) public {
         require(labelAvailable(label), 'label occupied');
         labelCommitments[label] = block.timestamp;
+        commitmentLabels[commitment] = label;
 
         commit(commitment);
     }
@@ -289,7 +291,12 @@ contract ETHRegistrarController is
         uint32 fuses,
         uint64 wrapperExpiry
     ) public onlyRole(ADMIN_ROLE) {
+        bytes32 label = keccak256(bytes(name));
+        bytes32 commitment = makeCommitment(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
+        require(commitmentLabels[commitment] == label, 'Commitment and label is not paired');
         _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
+        delete (labelCommitments[label]);
+        delete (commitmentLabels[commitment]);
     }
 
     function _register(
@@ -453,7 +460,6 @@ contract ETHRegistrarController is
         }
 
         delete (commitments[commitment]);
-        delete (labelCommitments[keccak256(bytes(name))]);
 
         if (duration < MIN_REGISTRATION_DURATION) {
             revert DurationTooShort(duration);

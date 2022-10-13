@@ -1,11 +1,10 @@
 import { ethers } from "hardhat";
-import { WEB3_NAMEHASH, REVERSE_NAMEHASH, ROOT_NODE, namehash, labelhash } from './utils'
-import { mine } from "@nomicfoundation/hardhat-network-helpers";
-const ONE_YEAR = 3600 * 24 * 365;
+import { WEB3_NAMEHASH, ROOT_NODE, namehash, labelhash } from './utils'
 
-async function main() {
-  const signers = await ethers.getSigners();
-  console.log(`The default signer`, signers[0].address);
+export async function deployCNS() {
+  const [admin] = await ethers.getSigners();
+  const adminAddr = admin.address;
+  console.log(`The default signer`, adminAddr);
 
   // deploy contracts ===========================
   // deploy ENSRegistry  
@@ -35,7 +34,7 @@ async function main() {
   await nameWrapper.deployed();
   console.log(`NameWrapper deployed to ${nameWrapper.address}`);
 
-  const cfxPrice = BigInt(2000 * 1e8);
+  const cfxPrice = BigInt(1 * 1e8);
   const CFXPriceOracle = await ethers.getContractFactory("CFXPriceOracle");
   const cfxPriceOracle = await CFXPriceOracle.deploy(cfxPrice);
   await cfxPriceOracle.deployed();
@@ -50,8 +49,16 @@ async function main() {
   await stablePriceOracle.deployed();
   console.log(`StablePriceOracle deployed to ${stablePriceOracle.address}`);
 
-  const minCommitmentAge = 120 // s
-  const maxCommitmentAge = 3600 * 10; // s
+  // set fiat purchase price
+  let fiatpricesForOneYear = [100000n, 10000n, 6100n, 3600n, 600n, 30n];  // cny
+  for(let i = 0; i < fiatpricesForOneYear.length; i++) {
+    fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e18) / (3600n * 24n * 365n);
+  }
+  const _tx = await stablePriceOracle.setFiatRentPrice(fiatpricesForOneYear);
+  await _tx.wait();
+
+  const minCommitmentAge = 30 // s
+  const maxCommitmentAge = 600; // s
   const ControllerContractFullName = "contracts/web3registrar/Web3RegistrarController.sol:ETHRegistrarController";
   const ETHRegistrarController = await ethers.getContractFactory(ControllerContractFullName);
   let ethRegistrarController = await ETHRegistrarController.deploy(baseRegistrarImplementation.address, stablePriceOracle.address, minCommitmentAge, maxCommitmentAge, reverseRegistrar.address, nameWrapper.address);
@@ -66,9 +73,8 @@ async function main() {
     maxCommitmentAge,
     reverseRegistrar.address,
     nameWrapper.address,
-    signers[0].address,
+    admin.address,
   ]);
-  //   console.log('initialize data', controllerInitData);
   const Proxy1967 = await ethers.getContractFactory("Proxy1967");
   const proxy1967 = await Proxy1967.deploy(ethRegistrarController.address, controllerInitData);
   await proxy1967.deployed();
@@ -89,7 +95,7 @@ async function main() {
   tx = await ensRegistry.setSubnodeOwner(ROOT_NODE, labelhash('web3'), baseRegistrarImplementation.address)
   await tx.wait();
 
-  tx = await ensRegistry.setSubnodeOwner(ROOT_NODE, labelhash('reverse'), signers[0].address)
+  tx = await ensRegistry.setSubnodeOwner(ROOT_NODE, labelhash('reverse'), admin.address)
   await tx.wait();
 
   tx = await ensRegistry.setSubnodeOwner(namehash('reverse'), labelhash('addr'), reverseRegistrar.address)
@@ -113,36 +119,16 @@ async function main() {
   tx = await ethRegistrarController.setNameWhitelist(nameWhitelist.address);
   await tx.wait();
 
-  // test buy a name ==================================
-  const toBuy = 'jiuhua';
-  const valid = await ethRegistrarController.valid(toBuy);
-  console.log(`valid: ${valid}`);
-
-  const available = await ethRegistrarController.available(toBuy);
-  console.log(`available: ${available}`);
-
-  const price = await ethRegistrarController.rentPrice(toBuy, ONE_YEAR);
-  console.log(`price: ${price[0]}`);
-
-  const commitment = await ethRegistrarController.makeCommitment(toBuy, signers[0].address, ONE_YEAR, labelhash(toBuy), publicResolver.address, [], true, 0, ONE_YEAR);
-  
-//   tx = await ethRegistrarController.commit(commitment);
-//   await tx.wait();
-
-  tx = await ethRegistrarController.commitWithName(commitment, labelhash(toBuy));
-  await tx.wait();
-
-  await mine(1000);
-  
-  tx = await ethRegistrarController.register(toBuy, signers[0].address, ONE_YEAR, labelhash(toBuy), publicResolver.address, [], true, 0, ONE_YEAR, {
-    value: price[0]
-  });
-  await tx.wait();
+  return {
+    ensRegistry,
+    reverseRegistrar,
+    baseRegistrarImplementation,
+    staticMetadataService,
+    nameWrapper,
+    cfxPriceOracle,
+    stablePriceOracle,
+    ethRegistrarController,
+    nameWhitelist,
+    publicResolver,
+  };
 }
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});

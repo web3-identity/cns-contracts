@@ -17,14 +17,28 @@ async function main() {
     from: account.address,
   }).executed();
   logReceipt(receipt1, 'StaticMetadataService');
+  const staticMetadataServiceAddr = receipt1.contractCreated;
+
+  const {ENS_REGISTRY, BASE_REGISTRAR} = process.env;
 
   // @ts-ignore
   const NameWrapper = await conflux.getContractFactory('NameWrapper');
-  const receipt = await NameWrapper.constructor(process.env.ENS_REGISTRY, process.env.BASE_REGISTRAR, receipt1.contractCreated).sendTransaction({
+  const receipt = await NameWrapper.constructor(process.env.ENS_REGISTRY, process.env.BASE_REGISTRAR, staticMetadataServiceAddr).sendTransaction({
     from: account.address,
   }).executed();
-  
   logReceipt(receipt, 'NameWrapper');
+
+  const implAddr = receipt.contractCreated;
+
+  // @ts-ignore
+  const contract = await conflux.getContractAt('NameWrapper', implAddr);
+  const initData = contract.initialize(ENS_REGISTRY, BASE_REGISTRAR, staticMetadataServiceAddr).data;
+  // @ts-ignore
+  const Proxy1967 = await conflux.getContractFactory('Proxy1967');
+  const receipt2 = await Proxy1967.constructor(implAddr, initData).sendTransaction({
+      from: account.address,
+  }).executed();
+  logReceipt(receipt2, 'NameWrapper Proxy');
 }
 
 main().catch(console.log);
