@@ -122,12 +122,6 @@ uint64 MAX_EXPIRY
 mapping(address => struct EnumerableSet.Bytes32Set) _userNodes
 ```
 
-### _userOperators
-
-```solidity
-mapping(address => struct EnumerableSet.AddressSet) _userOperators
-```
-
 ### tokenCount
 
 ```solidity
@@ -667,12 +661,6 @@ _Both of these checks need to be true to be considered wrapped if checked withou
 function onERC721Received(address to, address, uint256 tokenId, bytes data) public returns (bytes4)
 ```
 
-### setApprovalForAll
-
-```solidity
-function setApprovalForAll(address operator, bool approved) public virtual
-```
-
 ### safeTransferFrom
 
 ```solidity
@@ -701,12 +689,6 @@ function userNodeSet(address user) public view returns (bytes32[])
 
 ```solidity
 function userDomains(address user) public view returns (string[])
-```
-
-### userOperators
-
-```solidity
-function userOperators(address user) public view returns (address[])
 ```
 
 ### _canTransfer
