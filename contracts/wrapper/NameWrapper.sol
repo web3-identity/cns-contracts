@@ -68,7 +68,6 @@ contract NameWrapper is
     // owner => web3 node set
     // Update places: _mint, _burn, transfer
     mapping(address => EnumerableSet.Bytes32Set) private _userNodes;
-    mapping(address => EnumerableSet.AddressSet) private _userOperators;
     uint256 public tokenCount;
     uint256 public label45Count; // count of label lengh is  4-5
 
@@ -808,21 +807,6 @@ contract NameWrapper is
     }
 
     // CNS UPDATE
-    function setApprovalForAll(address operator, bool approved)
-        public
-        virtual
-        override(ERC1155Fuse, IERC1155)
-    {
-        super.setApprovalForAll(operator, approved);
-
-        if (approved) {
-            _userOperators[msg.sender].add(operator);
-        } else {
-            _userOperators[msg.sender].remove(operator);
-        }
-    }    
-
-    // CNS UPDATE
     function safeTransferFrom(
         address from,
         address to,
@@ -867,10 +851,6 @@ contract NameWrapper is
             domains[i] = string(names[nodes[i]]);
         }
         return domains;
-    }
-
-    function userOperators(address user) public view returns (address[] memory) {
-        return _userOperators[user].values();
     }
 
     /***** Internal functions */
