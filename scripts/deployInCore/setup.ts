@@ -41,7 +41,7 @@ async function setup(account: any) {
     // @ts-ignore
     const NameWrapper = await conflux.getContractAt('NameWrapper', NAME_WRAPPER);
     // @ts-ignore
-    const ETHRegistrarController = await conflux.getContractAt('ETHRegistrarController', WEB3_CONTROLLER);
+    const ETHRegistrarController = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
     // @ts-ignore
     const PublicResolver = await conflux.getContractAt('PublicResolver', PUBLIC_RESOLVER);
 

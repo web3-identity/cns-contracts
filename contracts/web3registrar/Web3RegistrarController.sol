@@ -203,13 +203,13 @@ contract Web3RegistrarController is
         if (!nameWhitelist.isLabelValid(_label)) {
             return LabelStatus.IllegalChar;
         }
-        // locked by others
-        if (!labelAvailable(keccak256(bytes(_label)))) {
-            return LabelStatus.Locked;
-        }
         // registered
         if (!available(_label)) {
             return LabelStatus.Registered;
+        }
+        // locked by others
+        if (!labelAvailable(keccak256(bytes(_label)))) {
+            return LabelStatus.Locked;
         }
         return LabelStatus.Valid;
     }

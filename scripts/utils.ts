@@ -68,3 +68,9 @@ export function namehash (inputName: string) {
 function normalize(name: string) {
   return name ? uts46.toUnicode(name, {useStd3ASCII: true}) : name
 }
+
+export async function waitNS(sec: number) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(null), sec * 1000);
+    });
+}

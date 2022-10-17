@@ -7,6 +7,7 @@ import {
     namehash, 
     REVERSE_NAMEHASH,
     ONE_YEAR,
+    waitNS,
 } from './utils';
 const {
   conflux,    // The Conflux instance
@@ -26,60 +27,62 @@ async function main() {
     const accounts = await conflux.getSigners();
     const account = accounts[0];
     
-    // await purchaseDomain(account);
+    // await purchaseDomain(account, 'jiuhua2');
 
     // await claimReverseDomain(account);
 
-    await resolve(account);
+    // await resolve(account);
 
     // await registry();
 
-    // await nameWrapper();
+    await nameWrapper();
 }
 
 main().catch(console.log);
 
-async function purchaseDomain(account: any) {
+async function purchaseDomain(account: any, toBuy: string) {
     // @ts-ignore
-    const Web3Controller = await conflux.getContractAt('ETHRegistrarController', WEB3_CONTROLLER);
+    const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
     // @ts-ignore
     const PublicResolver = await conflux.getContractAt('PublicResolver', PUBLIC_RESOLVER);
 
-    const toBuy = 'jiuhua3';
-
-    let receipt
-  
-    /* const valid = await Web3Controller.valid(toBuy);
+    const valid = await Web3Controller.valid(toBuy);
     console.log(`Is ${toBuy} valid`, valid);
     const available = await Web3Controller.available(toBuy);
     console.log(`Is ${toBuy} available`, available);
     const rentPrice = await Web3Controller.rentPrice(toBuy, ONE_YEAR);
     console.log(`Rent price of ${toBuy}`, new Drip(rentPrice[0]).toCFX(), 'CFX');
+    const labelStatus = await Web3Controller.labelStatus(toBuy);
+    console.log(`Label status of ${toBuy}`, labelStatus);
+    if (labelStatus !== 0n) {
+        throw new Error('Label is not available');
+    }
     
     const commitment = await Web3Controller
         .makeCommitment(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR);
     
-    receipt = await Web3Controller
-        .commit(commitment).sendTransaction({
-            from: account
-        })
-        .executed();
-    logReceipt(receipt, 'Commit'); */
-
     // receipt = await Web3Controller
-    //     .commitWithName(commitment, labelhash(toBuy)).sendTransaction({
+    //     .commit(commitment).sendTransaction({
     //         from: account
     //     })
     //     .executed();
-    // logReceipt(receipt, 'CommitWithName');
+    // logReceipt(receipt, 'Commit');
+    let receipt;
 
-    // TODO, need wait for two minutes
+    receipt = await Web3Controller
+        .commitWithName(commitment, labelhash(toBuy)).sendTransaction({
+            from: account
+        })
+        .executed();
+    logReceipt(receipt, 'CommitWithName');
+
+    await waitNS(40);
   
     receipt = await Web3Controller
-        .register(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR)
+        .registerWithFiat(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR)
         .sendTransaction({
             from: account.address,
-            value: Drip.fromCFX(300),
+            // value: Drip.fromCFX(300),
         }).executed();
     logReceipt(receipt, 'Register');
   
@@ -126,17 +129,17 @@ async function resolve(account: any) {
     const PublicResolver = await conflux.getContractAt('PublicResolver', PUBLIC_RESOLVER);
 
     // set addr
-    /* let tx = await PublicResolver.setAddr(node, account.address).sendTransaction({
-        from: account
-    }).executed(); */
-
-    const { hexAddress: addressInBytes } = address.decodeCfxAddress(account.address);
-    console.log('addressInBytes', addressInBytes);
-    let tx = await PublicResolver.setAddr(node, 503, addressInBytes).sendTransaction({
+    let tx = await PublicResolver.setAddr(node, account.address).sendTransaction({
         from: account
     }).executed();
 
-    const addr = await PublicResolver.addr(node, 503);
+    /* const { hexAddress: addressInBytes } = address.decodeCfxAddress(account.address);
+    console.log('addressInBytes', addressInBytes);
+    let tx = await PublicResolver.setAddr(node, 503, addressInBytes).sendTransaction({
+        from: account
+    }).executed(); */
+
+    const addr = await PublicResolver.addr(node);
     console.log('addr', addr);
     
 }
@@ -172,5 +175,10 @@ async function nameWrapper() {
     const owner = await contract.ownerOf(node);
     console.log(owner);
 
+    // @ts-ignore
+    const accounts = await conflux.getSigners();
+    const account = accounts[0];
+    const domains = await contract.userDomains(account.address);
+    console.log(domains);
 
 }
