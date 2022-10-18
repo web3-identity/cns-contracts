@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "solidity-stringutils/strings.sol";
 import "./INameWhitelist.sol";
+// import "hardhat/console.sol";
 
 // zero width space
 // https://unicode-table.com/en/200B/
@@ -85,7 +86,8 @@ contract NameWhitelist is Ownable, INameWhitelist {
             return false;
         } */
         strings.slice memory s = _label.toSlice();
-        for (uint256 i = 0; i < s.len(); i++) {
+        uint256 sLen = s.len();
+        for (uint256 i = 0; i < sLen; i++) {
             string memory rune = s.nextRune().toString();
             if (!whiteList[rune]) {
                 return false;

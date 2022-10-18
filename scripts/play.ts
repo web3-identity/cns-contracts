@@ -35,7 +35,12 @@ async function main() {
 
     // await registry();
 
-    await nameWrapper();
+    // await nameWrapper();
+
+    // @ts-ignore
+    const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
+    const status = await Web3Controller.labelStatus('xxx#');
+    console.log(status);
 }
 
 main().catch(console.log);
@@ -180,5 +185,13 @@ async function nameWrapper() {
     const account = accounts[0];
     const domains = await contract.userDomains(account.address);
     console.log(domains);
+}
 
+async function setWhitelist(account: any) {
+    // @ts-ignore
+    const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
+    const receipt = await Web3Controller.setNameWhitelist('cfxtest:acekf9jn798v05m654gbbb6kj9ktxsxd2ypdsr3us9').sendTransaction({
+        from: account
+    }).executed();
+    console.log(receipt);
 }
