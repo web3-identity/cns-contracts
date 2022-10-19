@@ -67,7 +67,7 @@ contract Web3RegistrarController is
     mapping(bytes32 => uint256) public commitments;
     mapping(bytes32 => uint256) public labelCommitments; // CNS UPDATE
     mapping(bytes32 => bytes32) public commitmentLabels; // CNS UPDATE
-    uint256 private validLen = 4;
+    uint256 private validLen = 4; // CNS UPDATE
 
     event NameRegistered(
         string name,
@@ -131,6 +131,7 @@ contract Web3RegistrarController is
         maxCommitmentAge = _maxCommitmentAge;
         reverseRegistrar = _reverseRegistrar;
         nameWrapper = _nameWrapper;
+        validLen = 4;
     }
 
     // CNS UPDATE
@@ -196,12 +197,12 @@ contract Web3RegistrarController is
         if (!valid(_label)) {
             return LabelStatus.TooShort;
         }
-        if (nameWhitelist.isReserved(_label)) {
-            return LabelStatus.Reserved;
-        }
         // check char
         if (!nameWhitelist.isLabelValid(_label)) {
             return LabelStatus.IllegalChar;
+        }
+        if (nameWhitelist.isReserved(_label)) {
+            return LabelStatus.Reserved;
         }
         // registered
         if (!available(_label)) {
@@ -377,12 +378,6 @@ contract Web3RegistrarController is
     function renewWithFiat(string calldata name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public onlyRole(ADMIN_ROLE)
     {
         bytes32 labelhash = keccak256(bytes(name));
-        
-        // bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
-        // if (!nameWrapper.isTokenOwnerOrApproved(nodehash, msg.sender)) {
-        //     revert Unauthorised(nodehash);
-        // }
-
         uint256 tokenId = uint256(labelhash);
         uint256 expires;
         

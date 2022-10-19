@@ -30,9 +30,9 @@ describe("NameWhitelist", function() {
             await tx.wait();
         } */
 
-        /* const emojis = await readEmojis();
+        const emojis = await readEmojis();
         let tx1 = await nameWhitelist.setWhiteListBatch(emojis.join(''), true);
-        await tx1.wait(); */
+        await tx1.wait();
 
         return { nameWhitelist };
     }
@@ -50,6 +50,12 @@ describe("NameWhitelist", function() {
             expect(await nameWhitelist.isLabelValid('hel123lo')).to.equal(true);
         });
 
+        it('valid emojis', async function() {
+            const { nameWhitelist } = await loadFixture(deployNameWhitelist);
+            expect(await nameWhitelist.isLabelValid('✅')).to.equal(true);
+            expect(await nameWhitelist.isLabelValid('💴😋🤪⚡🦓🤐🧟💤')).to.equal(true);
+        });
+
         it('invalid characters', async function() {
             const { nameWhitelist } = await loadFixture(deployNameWhitelist);
             expect(await nameWhitelist.isLabelValid('H')).to.equal(false);
@@ -60,6 +66,7 @@ describe("NameWhitelist", function() {
             expect(await nameWhitelist.isLabelValid('$')).to.equal(false);
             expect(await nameWhitelist.isLabelValid('%')).to.equal(false);
             expect(await nameWhitelist.isLabelValid('_')).to.equal(false);
+            expect(await nameWhitelist.isLabelValid(',')).to.equal(false);
         });
 
         it('common invalid case', async function() {
@@ -70,6 +77,21 @@ describe("NameWhitelist", function() {
             expect(await nameWhitelist.isLabelValid('123Abc')).to.equal(false);
             expect(await nameWhitelist.isLabelValid('123Abcc')).to.equal(false);
             expect(await nameWhitelist.isLabelValid('123##')).to.equal(false);
+        });
+
+        it('chinese', async function() {
+            const { nameWhitelist } = await loadFixture(deployNameWhitelist);
+            expect(await nameWhitelist.isLabelValid('中国')).to.equal(false);
+        });
+
+        it('flags', async function() {
+            const { nameWhitelist } = await loadFixture(deployNameWhitelist);
+            expect(await nameWhitelist.isLabelValid('🇨🇳')).to.equal(false);
+        });
+
+        it('zero space character', async function() {
+            const { nameWhitelist } = await loadFixture(deployNameWhitelist);
+            expect(await nameWhitelist.isLabelValid('llo 😃')).to.equal(false);
         });
     });
 });
