@@ -36,6 +36,23 @@ This contract worked as a wrapper for domain, it can used to wrap a domain name 
 
 Check detail in [NameWrapper](./NameWrapper.md).
 
+## Deployment
+
+### Conflux Core Testnet
+
+```shell
+ENS_REGISTRY=cfxtest:achg113s8916v2u756tvf6hdvmbsb73b16ykt1pvwm
+REVERSE_REGISTRAR=cfxtest:ach1p03gkptxz07p4ecn66gjpd0xrnkkbj1n6p96d5
+BASE_REGISTRAR=cfxtest:acc1ttg7287cybsdy6bn0002nzepypn29yavjbj36g
+STATIC_METADATA_SERVICE=cfxtest:acf1bttd0gs15m1b64ucfp9b5aap0z3bzjb9ganvjj
+NAME_WRAPPER=cfxtest:acdc4xzy0pg1dzrbajgmv8nw3cjyj6ezn2dzncc4w5 
+CFX_PRICE_ORACLE=cfxtest:acb1gtwgyx0uwtrpayfusxrtvy6m6bpsypcx4cpadk
+STABLE_ORACLE=cfxtest:ach9zhapw4vhdd56v58f4vuhyj6r0e7k2j82nv9jgs
+WEB3_CONTROLLER=cfxtest:acbrnwph2609zbf21np0501d87xb9dnvuakpv911xk 
+PUBLIC_RESOLVER=cfxtest:acecxexm0pg268m44jncw5bmagwwmun53jj9msmadj
+NAME_WHITELIST=cfxtest:acb7w3sxhtt9rxj8c8y426scdc54266fwu1f05x2rm
+```
+
 ## FAQs
 
 ### How to query domain expire time?
