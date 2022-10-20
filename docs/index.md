@@ -1,5 +1,530 @@
 # Solidity API
 
+## BulkRenewal
+
+### ETH_NAMEHASH
+
+```solidity
+bytes32 ETH_NAMEHASH
+```
+
+### ens
+
+```solidity
+contract ENS ens
+```
+
+### constructor
+
+```solidity
+constructor(contract ENS _ens) public
+```
+
+### getController
+
+```solidity
+function getController() internal view returns (contract Web3RegistrarController)
+```
+
+### rentPrice
+
+```solidity
+function rentPrice(string[] names, uint256 duration) external view returns (uint256 total)
+```
+
+### renewAll
+
+```solidity
+function renewAll(string[] names, uint256 duration) external payable
+```
+
+### supportsInterface
+
+```solidity
+function supportsInterface(bytes4 interfaceID) external pure returns (bool)
+```
+
+## IFiatPriceOracle
+
+### priceInFiat
+
+```solidity
+function priceInFiat(string name, uint256 expires, uint256 duration) external view returns (struct IPriceOracle.Price)
+```
+
+## INameWhitelist
+
+### isReserved
+
+```solidity
+function isReserved(string label) external view returns (bool)
+```
+
+### isLabelValid
+
+```solidity
+function isLabelValid(string label) external view returns (bool)
+```
+
+## CommitmentTooNew
+
+```solidity
+error CommitmentTooNew(bytes32 commitment)
+```
+
+## CommitmentTooOld
+
+```solidity
+error CommitmentTooOld(bytes32 commitment)
+```
+
+## NameNotAvailable
+
+```solidity
+error NameNotAvailable(string name)
+```
+
+## NameLocked
+
+```solidity
+error NameLocked(string name)
+```
+
+## DurationTooShort
+
+```solidity
+error DurationTooShort(uint256 duration)
+```
+
+## ResolverRequiredWhenDataSupplied
+
+```solidity
+error ResolverRequiredWhenDataSupplied()
+```
+
+## UnexpiredCommitmentExists
+
+```solidity
+error UnexpiredCommitmentExists(bytes32 commitment)
+```
+
+## InsufficientValue
+
+```solidity
+error InsufficientValue()
+```
+
+## Unauthorised
+
+```solidity
+error Unauthorised(bytes32 node)
+```
+
+## MaxCommitmentAgeTooLow
+
+```solidity
+error MaxCommitmentAgeTooLow()
+```
+
+## MaxCommitmentAgeTooHigh
+
+```solidity
+error MaxCommitmentAgeTooHigh()
+```
+
+## InvalidLabel
+
+```solidity
+error InvalidLabel(string name)
+```
+
+## Web3RegistrarController
+
+_A registrar controller for registering and renewing names at fixed cost._
+
+### LabelStatus
+
+```solidity
+enum LabelStatus {
+  Valid,
+  TooShort,
+  Reserved,
+  IllegalChar,
+  Locked,
+  Registered
+}
+```
+
+### ADMIN_ROLE
+
+```solidity
+bytes32 ADMIN_ROLE
+```
+
+### MIN_REGISTRATION_DURATION
+
+```solidity
+uint256 MIN_REGISTRATION_DURATION
+```
+
+### ETH_NODE
+
+```solidity
+bytes32 ETH_NODE
+```
+
+### MAX_EXPIRY
+
+```solidity
+uint64 MAX_EXPIRY
+```
+
+### base
+
+```solidity
+contract BaseRegistrarImplementation base
+```
+
+### prices
+
+```solidity
+contract IFiatPriceOracle prices
+```
+
+### minCommitmentAge
+
+```solidity
+uint256 minCommitmentAge
+```
+
+### maxCommitmentAge
+
+```solidity
+uint256 maxCommitmentAge
+```
+
+### reverseRegistrar
+
+```solidity
+contract ReverseRegistrar reverseRegistrar
+```
+
+### nameWrapper
+
+```solidity
+contract ICNameWrapper nameWrapper
+```
+
+### nameWhitelist
+
+```solidity
+contract INameWhitelist nameWhitelist
+```
+
+### commitments
+
+```solidity
+mapping(bytes32 => uint256) commitments
+```
+
+### labelCommitments
+
+```solidity
+mapping(bytes32 => uint256) labelCommitments
+```
+
+### commitmentLabels
+
+```solidity
+mapping(bytes32 => bytes32) commitmentLabels
+```
+
+### validLen
+
+```solidity
+uint256 validLen
+```
+
+### NameRegistered
+
+```solidity
+event NameRegistered(string name, bytes32 label, address owner, uint256 baseCost, uint256 premium, uint256 expires)
+```
+
+### NameRenewed
+
+```solidity
+event NameRenewed(string name, bytes32 label, uint256 cost, uint256 expires)
+```
+
+### constructor
+
+```solidity
+constructor(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract ICNameWrapper _nameWrapper) public
+```
+
+### initialize
+
+```solidity
+function initialize(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract ICNameWrapper _nameWrapper, address _admin) public
+```
+
+### _init
+
+```solidity
+function _init(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract ICNameWrapper _nameWrapper) internal
+```
+
+### setCommitmentAge
+
+```solidity
+function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public
+```
+
+### setNameWhitelist
+
+```solidity
+function setNameWhitelist(contract INameWhitelist _nameWhitelist) public
+```
+
+### setValidLen
+
+```solidity
+function setValidLen(uint256 _len) public
+```
+
+### rentPrice
+
+```solidity
+function rentPrice(string name, uint256 duration) public view returns (struct IPriceOracle.Price price)
+```
+
+### rentPriceInFiat
+
+```solidity
+function rentPriceInFiat(string name, uint256 duration) public view returns (struct IPriceOracle.Price price)
+```
+
+### valid
+
+```solidity
+function valid(string name) public view returns (bool)
+```
+
+### available
+
+```solidity
+function available(string name) public view returns (bool)
+```
+
+### labelAvailable
+
+```solidity
+function labelAvailable(bytes32 label) public view returns (bool)
+```
+
+### labelStatus
+
+```solidity
+function labelStatus(string _label) public view returns (enum Web3RegistrarController.LabelStatus)
+```
+
+### makeCommitment
+
+```solidity
+function makeCommitment(string name, address owner, uint256 duration, bytes32 secret, address resolver, bytes[] data, bool reverseRecord, uint32 fuses, uint64 wrapperExpiry) public pure returns (bytes32)
+```
+
+### commit
+
+```solidity
+function commit(bytes32 commitment) public
+```
+
+### commitWithName
+
+```solidity
+function commitWithName(bytes32 commitment, bytes32 label) public
+```
+
+### register
+
+```solidity
+function register(string name, address owner, uint256 duration, bytes32 secret, address resolver, bytes[] data, bool reverseRecord, uint32 fuses, uint64 wrapperExpiry) public payable
+```
+
+### registerWithFiat
+
+```solidity
+function registerWithFiat(string name, address owner, uint256 duration, bytes32 secret, address resolver, bytes[] data, bool reverseRecord, uint32 fuses, uint64 wrapperExpiry) public
+```
+
+### _register
+
+```solidity
+function _register(string name, address owner, uint256 duration, bytes32 secret, address resolver, bytes[] data, bool reverseRecord, uint32 fuses, uint64 wrapperExpiry) internal returns (uint256)
+```
+
+### renew
+
+```solidity
+function renew(string name, uint256 duration) external payable
+```
+
+### renewWithFiat
+
+```solidity
+function renewWithFiat(string name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public
+```
+
+### renewWithFuses
+
+```solidity
+function renewWithFuses(string name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) external payable
+```
+
+### _renew
+
+```solidity
+function _renew(string name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) internal
+```
+
+### withdraw
+
+```solidity
+function withdraw() public
+```
+
+### supportsInterface
+
+```solidity
+function supportsInterface(bytes4 interfaceID) public pure returns (bool)
+```
+
+### _consumeCommitment
+
+```solidity
+function _consumeCommitment(string name, uint256 duration, bytes32 commitment) internal
+```
+
+### _setRecords
+
+```solidity
+function _setRecords(address resolverAddress, bytes32 label, bytes[] data) internal
+```
+
+### _setReverseRecord
+
+```solidity
+function _setReverseRecord(string name, address resolver, address owner) internal
+```
+
+## ICNameWrapper
+
+### tokenCount
+
+```solidity
+function tokenCount() external view returns (uint256)
+```
+
+### label45Count
+
+```solidity
+function label45Count() external view returns (uint256)
+```
+
+## NameWhitelist
+
+### ZERO_WIDTH_SPACE
+
+```solidity
+bytes ZERO_WIDTH_SPACE
+```
+
+### CHAR_WHITE_LIST
+
+```solidity
+string CHAR_WHITE_LIST
+```
+
+### EMOJI_WHITE_LIST
+
+```solidity
+string EMOJI_WHITE_LIST
+```
+
+### whiteList
+
+```solidity
+mapping(string => bool) whiteList
+```
+
+### specialNames
+
+```solidity
+mapping(string => bool) specialNames
+```
+
+### constructor
+
+```solidity
+constructor() public
+```
+
+### checkIfZeroNotPresent
+
+```solidity
+function checkIfZeroNotPresent(string _name) public pure returns (bool)
+```
+
+### checkContainBytes
+
+```solidity
+function checkContainBytes(string toCheck, bytes toFind) public pure returns (bool)
+```
+
+### isLabelValid
+
+```solidity
+function isLabelValid(string _label) public view returns (bool)
+```
+
+### isInWhiteList
+
+```solidity
+function isInWhiteList(string toCheck) public view returns (bool)
+```
+
+### isReserved
+
+```solidity
+function isReserved(string label) public view returns (bool)
+```
+
+### setSpecialName
+
+```solidity
+function setSpecialName(string name, bool isSpecial) public
+```
+
+### setSpecialNameBatch
+
+```solidity
+function setSpecialNameBatch(string[] names, bool isSpecial) public
+```
+
+### setWhiteList
+
+```solidity
+function setWhiteList(string name, bool isWhite) public
+```
+
+### setWhiteListBatch
+
+```solidity
+function setWhiteListBatch(string name, bool isWhite) public
+```
+
 ## Unauthorised
 
 ```solidity
@@ -805,439 +1330,6 @@ function _canFusesBeBurned(bytes32 node, uint32 fuses) internal pure
 function _checkForParentCannotControl(bytes32 node, uint32 fuses) internal view
 ```
 
-## BulkRenewal
-
-### ETH_NAMEHASH
-
-```solidity
-bytes32 ETH_NAMEHASH
-```
-
-### ens
-
-```solidity
-contract ENS ens
-```
-
-### constructor
-
-```solidity
-constructor(contract ENS _ens) public
-```
-
-### getController
-
-```solidity
-function getController() internal view returns (contract Web3RegistrarController)
-```
-
-### rentPrice
-
-```solidity
-function rentPrice(string[] names, uint256 duration) external view returns (uint256 total)
-```
-
-### renewAll
-
-```solidity
-function renewAll(string[] names, uint256 duration) external payable
-```
-
-### supportsInterface
-
-```solidity
-function supportsInterface(bytes4 interfaceID) external pure returns (bool)
-```
-
-## IFiatPriceOracle
-
-### priceInFiat
-
-```solidity
-function priceInFiat(string name, uint256 expires, uint256 duration) external view returns (struct IPriceOracle.Price)
-```
-
-## INameWhitelist
-
-### isReserved
-
-```solidity
-function isReserved(string label) external view returns (bool)
-```
-
-### isLabelValid
-
-```solidity
-function isLabelValid(string label) external view returns (bool)
-```
-
-## CommitmentTooNew
-
-```solidity
-error CommitmentTooNew(bytes32 commitment)
-```
-
-## CommitmentTooOld
-
-```solidity
-error CommitmentTooOld(bytes32 commitment)
-```
-
-## NameNotAvailable
-
-```solidity
-error NameNotAvailable(string name)
-```
-
-## NameLocked
-
-```solidity
-error NameLocked(string name)
-```
-
-## DurationTooShort
-
-```solidity
-error DurationTooShort(uint256 duration)
-```
-
-## ResolverRequiredWhenDataSupplied
-
-```solidity
-error ResolverRequiredWhenDataSupplied()
-```
-
-## UnexpiredCommitmentExists
-
-```solidity
-error UnexpiredCommitmentExists(bytes32 commitment)
-```
-
-## InsufficientValue
-
-```solidity
-error InsufficientValue()
-```
-
-## Unauthorised
-
-```solidity
-error Unauthorised(bytes32 node)
-```
-
-## MaxCommitmentAgeTooLow
-
-```solidity
-error MaxCommitmentAgeTooLow()
-```
-
-## MaxCommitmentAgeTooHigh
-
-```solidity
-error MaxCommitmentAgeTooHigh()
-```
-
-## InvalidLabel
-
-```solidity
-error InvalidLabel(string name)
-```
-
-## Web3RegistrarController
-
-_A registrar controller for registering and renewing names at fixed cost._
-
-### LabelStatus
-
-```solidity
-enum LabelStatus {
-  Valid,
-  TooShort,
-  Reserved,
-  IllegalChar,
-  Locked,
-  Registered
-}
-```
-
-### ADMIN_ROLE
-
-```solidity
-bytes32 ADMIN_ROLE
-```
-
-### MIN_REGISTRATION_DURATION
-
-```solidity
-uint256 MIN_REGISTRATION_DURATION
-```
-
-### ETH_NODE
-
-```solidity
-bytes32 ETH_NODE
-```
-
-### MAX_EXPIRY
-
-```solidity
-uint64 MAX_EXPIRY
-```
-
-### base
-
-```solidity
-contract BaseRegistrarImplementation base
-```
-
-### prices
-
-```solidity
-contract IFiatPriceOracle prices
-```
-
-### minCommitmentAge
-
-```solidity
-uint256 minCommitmentAge
-```
-
-### maxCommitmentAge
-
-```solidity
-uint256 maxCommitmentAge
-```
-
-### reverseRegistrar
-
-```solidity
-contract ReverseRegistrar reverseRegistrar
-```
-
-### nameWrapper
-
-```solidity
-contract ICNameWrapper nameWrapper
-```
-
-### nameWhitelist
-
-```solidity
-contract INameWhitelist nameWhitelist
-```
-
-### commitments
-
-```solidity
-mapping(bytes32 => uint256) commitments
-```
-
-### labelCommitments
-
-```solidity
-mapping(bytes32 => uint256) labelCommitments
-```
-
-### commitmentLabels
-
-```solidity
-mapping(bytes32 => bytes32) commitmentLabels
-```
-
-### validLen
-
-```solidity
-uint256 validLen
-```
-
-### NameRegistered
-
-```solidity
-event NameRegistered(string name, bytes32 label, address owner, uint256 baseCost, uint256 premium, uint256 expires)
-```
-
-### NameRenewed
-
-```solidity
-event NameRenewed(string name, bytes32 label, uint256 cost, uint256 expires)
-```
-
-### constructor
-
-```solidity
-constructor(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract ICNameWrapper _nameWrapper) public
-```
-
-### initialize
-
-```solidity
-function initialize(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract ICNameWrapper _nameWrapper, address _admin) public
-```
-
-### _init
-
-```solidity
-function _init(contract BaseRegistrarImplementation _base, contract IFiatPriceOracle _prices, uint256 _minCommitmentAge, uint256 _maxCommitmentAge, contract ReverseRegistrar _reverseRegistrar, contract ICNameWrapper _nameWrapper) internal
-```
-
-### setCommitmentAge
-
-```solidity
-function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public
-```
-
-### setNameWhitelist
-
-```solidity
-function setNameWhitelist(contract INameWhitelist _nameWhitelist) public
-```
-
-### setValidLen
-
-```solidity
-function setValidLen(uint256 _len) public
-```
-
-### rentPrice
-
-```solidity
-function rentPrice(string name, uint256 duration) public view returns (struct IPriceOracle.Price price)
-```
-
-### rentPriceInFiat
-
-```solidity
-function rentPriceInFiat(string name, uint256 duration) public view returns (struct IPriceOracle.Price price)
-```
-
-### valid
-
-```solidity
-function valid(string name) public view returns (bool)
-```
-
-### available
-
-```solidity
-function available(string name) public view returns (bool)
-```
-
-### labelAvailable
-
-```solidity
-function labelAvailable(bytes32 label) public view returns (bool)
-```
-
-### labelStatus
-
-```solidity
-function labelStatus(string _label) public view returns (enum Web3RegistrarController.LabelStatus)
-```
-
-### makeCommitment
-
-```solidity
-function makeCommitment(string name, address owner, uint256 duration, bytes32 secret, address resolver, bytes[] data, bool reverseRecord, uint32 fuses, uint64 wrapperExpiry) public pure returns (bytes32)
-```
-
-### commit
-
-```solidity
-function commit(bytes32 commitment) public
-```
-
-### commitWithName
-
-```solidity
-function commitWithName(bytes32 commitment, bytes32 label) public
-```
-
-### register
-
-```solidity
-function register(string name, address owner, uint256 duration, bytes32 secret, address resolver, bytes[] data, bool reverseRecord, uint32 fuses, uint64 wrapperExpiry) public payable
-```
-
-### registerWithFiat
-
-```solidity
-function registerWithFiat(string name, address owner, uint256 duration, bytes32 secret, address resolver, bytes[] data, bool reverseRecord, uint32 fuses, uint64 wrapperExpiry) public
-```
-
-### _register
-
-```solidity
-function _register(string name, address owner, uint256 duration, bytes32 secret, address resolver, bytes[] data, bool reverseRecord, uint32 fuses, uint64 wrapperExpiry) internal returns (uint256)
-```
-
-### renew
-
-```solidity
-function renew(string name, uint256 duration) external payable
-```
-
-### renewWithFiat
-
-```solidity
-function renewWithFiat(string name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public
-```
-
-### renewWithFuses
-
-```solidity
-function renewWithFuses(string name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) external payable
-```
-
-### _renew
-
-```solidity
-function _renew(string name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) internal
-```
-
-### withdraw
-
-```solidity
-function withdraw() public
-```
-
-### supportsInterface
-
-```solidity
-function supportsInterface(bytes4 interfaceID) public pure returns (bool)
-```
-
-### _consumeCommitment
-
-```solidity
-function _consumeCommitment(string name, uint256 duration, bytes32 commitment) internal
-```
-
-### _setRecords
-
-```solidity
-function _setRecords(address resolverAddress, bytes32 label, bytes[] data) internal
-```
-
-### _setReverseRecord
-
-```solidity
-function _setReverseRecord(string name, address resolver, address owner) internal
-```
-
-## ICNameWrapper
-
-### tokenCount
-
-```solidity
-function tokenCount() external view returns (uint256)
-```
-
-### label45Count
-
-```solidity
-function label45Count() external view returns (uint256)
-```
-
 ## AggregatorInterface
 
 ### latestAnswer
@@ -1418,98 +1510,6 @@ function implementation() public view returns (address)
 
 ```solidity
 function upgradeTo(address newImplementation) public
-```
-
-## NameWhitelist
-
-### ZERO_WIDTH_SPACE
-
-```solidity
-bytes ZERO_WIDTH_SPACE
-```
-
-### CHAR_WHITE_LIST
-
-```solidity
-string CHAR_WHITE_LIST
-```
-
-### EMOJI_WHITE_LIST
-
-```solidity
-string EMOJI_WHITE_LIST
-```
-
-### whiteList
-
-```solidity
-mapping(string => bool) whiteList
-```
-
-### specialNames
-
-```solidity
-mapping(string => bool) specialNames
-```
-
-### constructor
-
-```solidity
-constructor() public
-```
-
-### checkIfZeroNotPresent
-
-```solidity
-function checkIfZeroNotPresent(string _name) public pure returns (bool)
-```
-
-### checkContainBytes
-
-```solidity
-function checkContainBytes(string toCheck, bytes toFind) public pure returns (bool)
-```
-
-### isLabelValid
-
-```solidity
-function isLabelValid(string _label) public view returns (bool)
-```
-
-### isInWhiteList
-
-```solidity
-function isInWhiteList(string toCheck) public view returns (bool)
-```
-
-### isReserved
-
-```solidity
-function isReserved(string label) public view returns (bool)
-```
-
-### setSpecialName
-
-```solidity
-function setSpecialName(string name, bool isSpecial) public
-```
-
-### setSpecialNameBatch
-
-```solidity
-function setSpecialNameBatch(string[] names, bool isSpecial) public
-```
-
-### setWhiteList
-
-```solidity
-function setWhiteList(string name, bool isWhite) public
-```
-
-### setWhiteListBatch
-
-```solidity
-function setWhiteListBatch(string name, bool isWhite) public
 ```
 
 ## CharWhitelist

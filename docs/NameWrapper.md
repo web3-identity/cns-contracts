@@ -6,7 +6,7 @@ For more info about `NameWrapper`, please refer to [NameWrapper](https://github.
 
 NameWrapper is compatible with 1155 API, which means wrapped names are ERC1155 tokens. In addition to implementing ERC1155, wrapped names have an ERC721-compatible ownerOf function to return the owner of a wrapped name.
 
-NOTE: A name's 1155 tokenId in NameWrapper is the the namehash of the complete name.
+NOTE: A name's 1155 tokenId in NameWrapper is the the `namehash of the complete name`.
 
 ```js
 const namehash = require('eth-ens-namehash');
@@ -99,6 +99,8 @@ This method can return all domains owned by an address.
 ```js
 function userDomains(address user) public view returns (string[] memory);
 ```
+
+The returned domains is encoded as [DNS Name Notation and Message Compression Technique](http://www.tcpipguide.com/free/t_DNSNameNotationandMessageCompressionTechnique.htm#:~:text=Instead,%20DNS%20uses%20a%20special,are%20encoded,%20one%20per%20byte.)
 
 ## 1155 methods
 

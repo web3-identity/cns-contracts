@@ -1,6 +1,6 @@
 # Web3Controller
 
-This contract is compatible ENS Controller. Check [ENS Controller API doc](https://docs.ens.domains/contract-api-reference/.eth-permanent-registrar/controller) for details.
+This contract is compatible with ENS Controller. Check [ENS Controller API doc](https://docs.ens.domains/contract-api-reference/.eth-permanent-registrar/controller) for details.
 
 The top domain managed by this controller is `web3`.
 
@@ -9,8 +9,8 @@ The top domain managed by this controller is `web3`.
 To purchase a submain of `web3` users need to the follow steps:
 
 1. Call `makeCommitment` to calculate commitment hash.
-2. Call `commit` to submit commitment by sending transaction.
-3. Call `register` to register the name by sending transaction and value.
+2. Call `commit` or `commitWithName` to submit commitment by sending transaction.
+3. Call `register` or `registerWithFiat` to register the name by sending transaction and value.
 
 ## APIs
 
@@ -62,7 +62,7 @@ function commit(bytes32 commitment) public override;
 
 ### commitWithName
 
-Submit commitment and also lock the name.
+Submit commitment and `also lock the name`.
 
 ### Parameters
 
@@ -141,6 +141,7 @@ LabelStatus is a enum type, it has three values:
 * IllegalChar - 3
 * Locked - 4
 * Registered - 5
+* Soldout - 6
 
 #### Method Signature
 
@@ -176,7 +177,7 @@ function rentPrice(string memory name, uint256 duration) returns (ICFXPriceOracl
 
 ### rentPriceInFiat
 
-Domain rent price in CFX
+Domain rent price in Fiat, the `fiat decimals is 8`
 
 #### Parameters
 
