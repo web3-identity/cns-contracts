@@ -51,6 +51,6 @@
   "dependencies": {
     "@ensdomains/ens-contracts": "https://github.com/ensdomains/ens-contracts",
     "@openzeppelin/contracts": "^4.7.3",
-    "solidity-stringutils": "web3ns/solidity-stringutils"
+    "solidity-stringutils": "web3-identity/solidity-stringutils"
   }
 }

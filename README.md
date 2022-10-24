@@ -1,4 +1,4 @@
-# CoreID Name Domain Contracts
+# cns-contracts
 
 The source code of CoreID Name Domain Contracts.
 

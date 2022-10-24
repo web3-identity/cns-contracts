@@ -230,6 +230,9 @@ contract Web3RegistrarController is
         if (data.length > 0 && resolver == address(0)) {
             revert ResolverRequiredWhenDataSupplied();
         }
+        if (duration < MIN_REGISTRATION_DURATION) {
+            revert DurationTooShort(duration);
+        }
         return
             keccak256(
                 abi.encode(

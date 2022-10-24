@@ -6227,9 +6227,9 @@ solidity-docgen@^0.6.0-beta.29:
     handlebars "^4.7.7"
     solidity-ast "^0.4.31"
 
-solidity-stringutils@web3ns/solidity-stringutils:
+solidity-stringutils@web3-identity/solidity-stringutils:
   version "1.0.0"
-  resolved "https://codeload.github.com/web3ns/solidity-stringutils/tar.gz/1b0129b9597e469cbbccefd37a8dfbb9ee8603f3"
+  resolved "https://codeload.github.com/web3-identity/solidity-stringutils/tar.gz/1b0129b9597e469cbbccefd37a8dfbb9ee8603f3"
 
 source-map-support@^0.5.13, source-map-support@^0.5.19:
   version "0.5.21"
