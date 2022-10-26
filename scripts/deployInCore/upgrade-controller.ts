@@ -1,12 +1,5 @@
 import hre from 'hardhat';
-
-import { 
-    logReceipt, 
-    ROOT_NODE, 
-    labelhash, 
-    namehash, 
-    REVERSE_NAMEHASH,
-} from '../utils';
+import { logReceipt } from '../utils';
 const {
   conflux,    // The Conflux instance
 } = hre;

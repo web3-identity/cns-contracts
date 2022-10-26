@@ -152,6 +152,11 @@ contract Web3RegistrarController is
     }
 
     // CNS UPDATE
+    function setPriceOracle(IFiatPriceOracle _prices) public onlyRole(ADMIN_ROLE) {
+        prices = _prices;
+    }
+
+    // CNS UPDATE
     function setValidLen(uint256 _len) public onlyRole(ADMIN_ROLE) {
         require(_len > 1, "minimal len is 2");
         validLen = _len;

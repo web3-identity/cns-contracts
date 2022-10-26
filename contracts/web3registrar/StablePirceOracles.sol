@@ -155,10 +155,10 @@ contract StablePriceOracle is IPriceOracle, Ownable {
 
     function setFiatRentPrice(uint256[] memory _rentPrices) public onlyOwner {
         fiatPrice1Letter = _rentPrices[0];
-        fiatPrice1Letter = _rentPrices[1];
-        fiatPrice1Letter = _rentPrices[2];
-        fiatPrice1Letter = _rentPrices[3];
-        fiatPrice1Letter = _rentPrices[4];
+        fiatPrice2Letter = _rentPrices[1];
+        fiatPrice3Letter = _rentPrices[2];
+        fiatPrice4Letter = _rentPrices[3];
+        fiatPrice5Letter = _rentPrices[4];
         emit RentPriceChanged(_rentPrices, 1);  // fiat
     }
 }

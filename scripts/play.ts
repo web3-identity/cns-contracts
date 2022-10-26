@@ -20,12 +20,12 @@ const {
     NAME_WRAPPER,
     WEB3_CONTROLLER,
     PUBLIC_RESOLVER,
+    STABLE_ORACLE,
 } = process.env;
 
 async function main() {
     // @ts-ignore
-    const accounts = await conflux.getSigners();
-    const account = accounts[0];
+    const [account] = await conflux.getSigners();
     
     // await purchaseDomain(account, 'jiuhua2');
 
@@ -37,10 +37,18 @@ async function main() {
 
     // await nameWrapper();
 
+
     // @ts-ignore
     const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
+
+    await Web3Controller.setPriceOracle('cfxtest:acd51b7m6gufh1przxthzakrnm9w3g544ykhbt3pv5').sendTransaction({
+        from: account.address
+    }).executed();
+    // @ts-ignore
+    // const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
     const status = await Web3Controller.labelStatus('xxx#');
     console.log(status);
+
 }
 
 main().catch(console.log);
