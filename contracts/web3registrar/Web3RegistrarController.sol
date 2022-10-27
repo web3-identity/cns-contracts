@@ -65,6 +65,8 @@ contract Web3RegistrarController is
     INameWhitelist public nameWhitelist; // CNS UPDATE
 
     mapping(bytes32 => uint256) public commitments;
+    mapping(bytes32 => uint256) private labelCommitments; // TODO: delete
+    mapping(bytes32 => bytes32) private commitmentLabels; // TODO: delete
     uint256 private validLen = 4; // CNS UPDATE
 
     event NameRegistered(
