@@ -20,7 +20,7 @@ async function main() {
   const contractPath = 'contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle';
   // @ts-ignore
   const StablePriceOracle = await conflux.getContractFactory(contractPath);
-  let pricesForOneYear = [100000n, 10000n, 1000n, 100n, 10n, 1n];  // usd
+  let pricesForOneYear = [10000n, 1000n, 100n, 10n, 1n];  // usd
   for(let i = 0; i < pricesForOneYear.length; i++) {
     pricesForOneYear[i] = pricesForOneYear[i] * BigInt(1e18) / (3600n * 24n * 365n);
   }
@@ -32,9 +32,9 @@ async function main() {
 
     // @ts-ignore
     const stablePriceOracle = await conflux.getContractAt(contractPath, receipt.contractCreated);
-    let fiatpricesForOneYear = [100000n, 10000n, 6100n, 3600n, 600n, 30n];  // cny
+    let fiatpricesForOneYear = [10000n, 6100n, 3600n, 600n, 30n];  // cny
     for(let i = 0; i < fiatpricesForOneYear.length; i++) {
-        fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e18) / (3600n * 24n * 365n);
+        fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e8) / (3600n * 24n * 365n);
     }
     const receipt2 = await stablePriceOracle.setFiatRentPrice(fiatpricesForOneYear).sendTransaction({
         from: account.address,

@@ -227,18 +227,6 @@ contract INameWhitelist nameWhitelist
 mapping(bytes32 => uint256) commitments
 ```
 
-### labelCommitments
-
-```solidity
-mapping(bytes32 => uint256) labelCommitments
-```
-
-### commitmentLabels
-
-```solidity
-mapping(bytes32 => bytes32) commitmentLabels
-```
-
 ### validLen
 
 ```solidity
@@ -287,6 +275,12 @@ function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) 
 function setNameWhitelist(contract INameWhitelist _nameWhitelist) public
 ```
 
+### setPriceOracle
+
+```solidity
+function setPriceOracle(contract IFiatPriceOracle _prices) public
+```
+
 ### setValidLen
 
 ```solidity
@@ -317,12 +311,6 @@ function valid(string name) public view returns (bool)
 function available(string name) public view returns (bool)
 ```
 
-### labelAvailable
-
-```solidity
-function labelAvailable(bytes32 label) public view returns (bool)
-```
-
 ### labelStatus
 
 ```solidity
@@ -339,12 +327,6 @@ function makeCommitment(string name, address owner, uint256 duration, bytes32 se
 
 ```solidity
 function commit(bytes32 commitment) public
-```
-
-### commitWithName
-
-```solidity
-function commitWithName(bytes32 commitment, bytes32 label) public
 ```
 
 ### register
@@ -431,98 +413,6 @@ function tokenCount() external view returns (uint256)
 
 ```solidity
 function label45Count() external view returns (uint256)
-```
-
-## NameWhitelist
-
-### ZERO_WIDTH_SPACE
-
-```solidity
-bytes ZERO_WIDTH_SPACE
-```
-
-### CHAR_WHITE_LIST
-
-```solidity
-string CHAR_WHITE_LIST
-```
-
-### EMOJI_WHITE_LIST
-
-```solidity
-string EMOJI_WHITE_LIST
-```
-
-### whiteList
-
-```solidity
-mapping(string => bool) whiteList
-```
-
-### specialNames
-
-```solidity
-mapping(string => bool) specialNames
-```
-
-### constructor
-
-```solidity
-constructor() public
-```
-
-### checkIfZeroNotPresent
-
-```solidity
-function checkIfZeroNotPresent(string _name) public pure returns (bool)
-```
-
-### checkContainBytes
-
-```solidity
-function checkContainBytes(string toCheck, bytes toFind) public pure returns (bool)
-```
-
-### isLabelValid
-
-```solidity
-function isLabelValid(string _label) public view returns (bool)
-```
-
-### isInWhiteList
-
-```solidity
-function isInWhiteList(string toCheck) public view returns (bool)
-```
-
-### isReserved
-
-```solidity
-function isReserved(string label) public view returns (bool)
-```
-
-### setSpecialName
-
-```solidity
-function setSpecialName(string name, bool isSpecial) public
-```
-
-### setSpecialNameBatch
-
-```solidity
-function setSpecialNameBatch(string[] names, bool isSpecial) public
-```
-
-### setWhiteList
-
-```solidity
-function setWhiteList(string name, bool isWhite) public
-```
-
-### setWhiteListBatch
-
-```solidity
-function setWhiteListBatch(string name, bool isWhite) public
 ```
 
 ## Unauthorised
@@ -1490,6 +1380,98 @@ function setRentPrice(uint256[] _rentPrices) public
 
 ```solidity
 function setFiatRentPrice(uint256[] _rentPrices) public
+```
+
+## NameWhitelist
+
+### ZERO_WIDTH_SPACE
+
+```solidity
+bytes ZERO_WIDTH_SPACE
+```
+
+### CHAR_WHITE_LIST
+
+```solidity
+string CHAR_WHITE_LIST
+```
+
+### EMOJI_WHITE_LIST
+
+```solidity
+string EMOJI_WHITE_LIST
+```
+
+### whiteList
+
+```solidity
+mapping(string => bool) whiteList
+```
+
+### specialNames
+
+```solidity
+mapping(string => bool) specialNames
+```
+
+### constructor
+
+```solidity
+constructor() public
+```
+
+### checkIfZeroNotPresent
+
+```solidity
+function checkIfZeroNotPresent(string _name) public pure returns (bool)
+```
+
+### checkContainBytes
+
+```solidity
+function checkContainBytes(string toCheck, bytes toFind) public pure returns (bool)
+```
+
+### isLabelValid
+
+```solidity
+function isLabelValid(string _label) public view returns (bool)
+```
+
+### isInWhiteList
+
+```solidity
+function isInWhiteList(string toCheck) public view returns (bool)
+```
+
+### isReserved
+
+```solidity
+function isReserved(string label) public view returns (bool)
+```
+
+### setSpecialName
+
+```solidity
+function setSpecialName(string name, bool isSpecial) public
+```
+
+### setSpecialNameBatch
+
+```solidity
+function setSpecialNameBatch(string[] names, bool isSpecial) public
+```
+
+### setWhiteList
+
+```solidity
+function setWhiteList(string name, bool isWhite) public
+```
+
+### setWhiteListBatch
+
+```solidity
+function setWhiteListBatch(string name, bool isWhite) public
 ```
 
 ## Proxy1967

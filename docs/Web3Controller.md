@@ -60,21 +60,6 @@ Submit commitment
 function commit(bytes32 commitment) public override;
 ```
 
-### commitWithName
-
-Submit commitment and `also lock the name`.
-
-### Parameters
-
-* `commitment` bytes32 - commitment hash, calculated by makeCommitment method
-* `label` bytes32 - `Second level domain name hash` to register, eg `labehash('vilalik')` for `vilalik.web3`
-
-#### Method Signature
-
-```js
-function commitWithName(bytes32 commitment, string memory label) public override;
-```
-
 ### register
 
 After two minutes, user can call `register` method with same parameters as `makeCommitment` to register the domain (need pay cfx).
