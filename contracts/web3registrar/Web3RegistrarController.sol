@@ -65,8 +65,6 @@ contract Web3RegistrarController is
     INameWhitelist public nameWhitelist; // CNS UPDATE
 
     mapping(bytes32 => uint256) public commitments;
-    mapping(bytes32 => uint256) public labelCommitments; // CNS UPDATE
-    mapping(bytes32 => bytes32) public commitmentLabels; // CNS UPDATE
     uint256 private validLen = 4; // CNS UPDATE
 
     event NameRegistered(
@@ -192,11 +190,6 @@ contract Web3RegistrarController is
     }
 
     // CNS UPDATE
-    function labelAvailable(bytes32 label) public view returns (bool) {
-        return labelCommitments[label] == 0 || labelCommitments[label] + maxCommitmentAge <= block.timestamp;
-    }
-
-    // CNS UPDATE
     function labelStatus(string memory _label) public view returns (LabelStatus) {
         // too short
         if (!valid(_label)) {
@@ -212,10 +205,6 @@ contract Web3RegistrarController is
         // registered
         if (!available(_label)) {
             return LabelStatus.Registered;
-        }
-        // locked by others
-        if (!labelAvailable(keccak256(bytes(_label)))) {
-            return LabelStatus.Locked;
         }
         return LabelStatus.Valid;
     }
@@ -261,16 +250,6 @@ contract Web3RegistrarController is
         commitments[commitment] = block.timestamp;
     }
 
-    // CNS UPDATE
-    // NOTE: label should be related to the commitment
-    function commitWithName(bytes32 commitment, bytes32 label) public {
-        require(labelAvailable(label), 'label occupied');
-        labelCommitments[label] = block.timestamp;
-        commitmentLabels[commitment] = label;
-
-        commit(commitment);
-    }
-
     function register(
         string calldata name,
         address owner,
@@ -308,12 +287,7 @@ contract Web3RegistrarController is
         uint32 fuses,
         uint64 wrapperExpiry
     ) public onlyRole(ADMIN_ROLE) {
-        bytes32 label = keccak256(bytes(name));
-        bytes32 commitment = makeCommitment(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
-        require(commitmentLabels[commitment] == label, 'Commitment and label is not paired');
         _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
-        delete (labelCommitments[label]);
-        delete (commitmentLabels[commitment]);
     }
 
     function _register(

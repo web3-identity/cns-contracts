@@ -25,6 +25,7 @@ import {
   PARENT_CANNOT_CONTROL, 
   CAN_DO_EVERYTHING
 } from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
+// import "hardhat/console.sol";
 
 error Unauthorised(bytes32 node, address addr);
 error NameNotFound();
