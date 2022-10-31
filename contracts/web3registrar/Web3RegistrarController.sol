@@ -48,10 +48,11 @@ contract Web3RegistrarController is
         Reserved,
         IllegalChar,
         Locked,
-        Registered
+        Registered,
+        SoldOut
     }
 
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE"); // CNS UPDATE
     uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
     bytes32 private constant ETH_NODE =
         0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // CNS UPDATE: eth -> web3
@@ -68,6 +69,7 @@ contract Web3RegistrarController is
     mapping(bytes32 => uint256) private labelCommitments; // TODO: delete
     mapping(bytes32 => bytes32) private commitmentLabels; // TODO: delete
     uint256 private validLen = 4; // CNS UPDATE
+    uint256 private label45Quota = 50000; // CNS UPDATE
 
     event NameRegistered(
         string name,
@@ -77,6 +79,7 @@ contract Web3RegistrarController is
         uint256 premium,
         uint256 expires
     );
+
     event NameRenewed(
         string name,
         bytes32 indexed label,
@@ -132,34 +135,7 @@ contract Web3RegistrarController is
         reverseRegistrar = _reverseRegistrar;
         nameWrapper = _nameWrapper;
         validLen = 4;
-    }
-
-    // CNS UPDATE
-    function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public onlyRole(ADMIN_ROLE) {
-        if (_maxCommitmentAge <= _minCommitmentAge) {
-            revert MaxCommitmentAgeTooLow();
-        }
-        if (_maxCommitmentAge > block.timestamp) {
-            revert MaxCommitmentAgeTooHigh();
-        }
-        minCommitmentAge = _minCommitmentAge;
-        maxCommitmentAge = _maxCommitmentAge;
-    }
-
-    // CNS UPDATE
-    function setNameWhitelist(INameWhitelist _nameWhitelist) public onlyRole(ADMIN_ROLE) {
-        nameWhitelist = _nameWhitelist;
-    }
-
-    // CNS UPDATE
-    function setPriceOracle(IFiatPriceOracle _prices) public onlyRole(ADMIN_ROLE) {
-        prices = _prices;
-    }
-
-    // CNS UPDATE
-    function setValidLen(uint256 _len) public onlyRole(ADMIN_ROLE) {
-        require(_len > 1, "minimal len is 2");
-        validLen = _len;
+        label45Quota = 50000;
     }
 
     function rentPrice(string memory name, uint256 duration)
@@ -172,16 +148,6 @@ contract Web3RegistrarController is
         price = prices.price(name, base.nameExpires(uint256(label)), duration);
     }
 
-    // CNS UPDATE
-    function rentPriceInFiat(string memory name, uint256 duration)
-        public
-        view
-        returns (IFiatPriceOracle.Price memory price)
-    {
-        bytes32 label = keccak256(bytes(name));
-        price = prices.priceInFiat(name, base.nameExpires(uint256(label)), duration);
-    }
-
     function valid(string memory name) public view returns (bool) {
         return name.strlen() >= validLen;
     }
@@ -189,26 +155,6 @@ contract Web3RegistrarController is
     function available(string memory name) public view override returns (bool) {
         bytes32 label = keccak256(bytes(name));
         return valid(name) && base.available(uint256(label));
-    }
-
-    // CNS UPDATE
-    function labelStatus(string memory _label) public view returns (LabelStatus) {
-        // too short
-        if (!valid(_label)) {
-            return LabelStatus.TooShort;
-        }
-        // check char
-        if (!nameWhitelist.isLabelValid(_label)) {
-            return LabelStatus.IllegalChar;
-        }
-        if (nameWhitelist.isReserved(_label)) {
-            return LabelStatus.Reserved;
-        }
-        // registered
-        if (!available(_label)) {
-            return LabelStatus.Registered;
-        }
-        return LabelStatus.Valid;
     }
 
     function makeCommitment(
@@ -277,21 +223,6 @@ contract Web3RegistrarController is
         }
     }
 
-    // CNS UPDATE
-    function registerWithFiat(
-        string calldata name,
-        address owner,
-        uint256 duration,
-        bytes32 secret,
-        address resolver,
-        bytes[] calldata data,
-        bool reverseRecord,
-        uint32 fuses,
-        uint64 wrapperExpiry
-    ) public onlyRole(ADMIN_ROLE) {
-        _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
-    }
-
     function _register(
         string memory name,
         address owner,
@@ -303,6 +234,8 @@ contract Web3RegistrarController is
         uint32 fuses,
         uint64 wrapperExpiry
     ) internal returns (uint256) {
+        require(labelStatus(name) == LabelStatus.Valid, "Label is not valid to register");
+
         IFiatPriceOracle.Price memory price = rentPrice(name, duration);
 
         _consumeCommitment(
@@ -356,23 +289,6 @@ contract Web3RegistrarController is
         override
     {
         _renew(name, duration, 0, 0);
-    }
-
-    // CNS UPDATE
-    function renewWithFiat(string calldata name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public onlyRole(ADMIN_ROLE)
-    {
-        bytes32 labelhash = keccak256(bytes(name));
-        uint256 tokenId = uint256(labelhash);
-        uint256 expires;
-        
-        expires = nameWrapper.renew(
-            tokenId,
-            duration,
-            fuses,
-            wrapperExpiry
-        );
-
-        emit NameRenewed(name, labelhash, 0, expires);
     }
 
     function renewWithFuses(
@@ -474,5 +390,105 @@ contract Web3RegistrarController is
             resolver,
             string.concat(name, ".web3")  // eth -> web3
         );
+    }
+
+    /* Admin functions */
+
+    // CNS UPDATE
+    function rentPriceInFiat(string memory name, uint256 duration)
+        public
+        view
+        returns (IFiatPriceOracle.Price memory price)
+    {
+        bytes32 label = keccak256(bytes(name));
+        price = prices.priceInFiat(name, base.nameExpires(uint256(label)), duration);
+    }
+
+    // CNS UPDATE
+    function labelStatus(string memory _label) public view returns (LabelStatus) {
+        // too short
+        if (!valid(_label)) {
+            return LabelStatus.TooShort;
+        }
+        // check char
+        if (!nameWhitelist.isLabelValid(_label)) {
+            return LabelStatus.IllegalChar;
+        }
+        if (nameWhitelist.isReserved(_label)) {
+            return LabelStatus.Reserved;
+        }
+        // registered
+        if (!available(_label)) {
+            return LabelStatus.Registered;
+        }
+        if ((_label.strlen() == 4 || _label.strlen() == 5) && nameWrapper.label45Count() >= label45Quota) {
+            return LabelStatus.SoldOut;
+        }
+        return LabelStatus.Valid;
+    }
+
+    // CNS UPDATE
+    function renewWithFiat(string calldata name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public onlyRole(ADMIN_ROLE)
+    {
+        bytes32 labelhash = keccak256(bytes(name));
+        uint256 tokenId = uint256(labelhash);
+        uint256 expires;
+        
+        expires = nameWrapper.renew(
+            tokenId,
+            duration,
+            fuses,
+            wrapperExpiry
+        );
+
+        emit NameRenewed(name, labelhash, 0, expires);
+    }
+
+    // CNS UPDATE
+    function registerWithFiat(
+        string calldata name,
+        address owner,
+        uint256 duration,
+        bytes32 secret,
+        address resolver,
+        bytes[] calldata data,
+        bool reverseRecord,
+        uint32 fuses,
+        uint64 wrapperExpiry
+    ) public onlyRole(ADMIN_ROLE) {
+        _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
+    }
+
+    // CNS UPDATE
+    function setCommitmentAge(uint256 _minCommitmentAge, uint256 _maxCommitmentAge) public onlyRole(ADMIN_ROLE) {
+        if (_maxCommitmentAge <= _minCommitmentAge) {
+            revert MaxCommitmentAgeTooLow();
+        }
+        if (_maxCommitmentAge > block.timestamp) {
+            revert MaxCommitmentAgeTooHigh();
+        }
+        minCommitmentAge = _minCommitmentAge;
+        maxCommitmentAge = _maxCommitmentAge;
+    }
+
+    // CNS UPDATE
+    function setNameWhitelist(INameWhitelist _nameWhitelist) public onlyRole(ADMIN_ROLE) {
+        nameWhitelist = _nameWhitelist;
+    }
+
+    // CNS UPDATE
+    function setPriceOracle(IFiatPriceOracle _prices) public onlyRole(ADMIN_ROLE) {
+        prices = _prices;
+    }
+
+    // CNS UPDATE
+    function setValidLen(uint256 _len) public onlyRole(ADMIN_ROLE) {
+        require(_len > 1, "minimal len is 2");
+        validLen = _len;
+    }
+
+    function setLabel45Quota(uint256 _quota) public onlyRole(ADMIN_ROLE) {
+        require(_quota > label45Quota, "invalid quota");
+        label45Quota = _quota;
     }
 }

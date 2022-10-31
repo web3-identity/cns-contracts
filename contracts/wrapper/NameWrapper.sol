@@ -835,16 +835,19 @@ contract NameWrapper is
         }
     }
 
+    // CNS UPDATE
     function _updateNodeOwner(address from, address to, uint256 id) internal {
         bytes32 node = bytes32(id);
         _userNodes[from].remove(node);
         _userNodes[to].add(node);
     }
 
+    // CNS UPDATE
     function userNodeSet(address user) public view returns (bytes32[] memory) {
         return _userNodes[user].values();
     }
 
+    // CNS UPDATE
     function userDomains(address user) public view returns (string[] memory) {
         bytes32[] memory nodes = userNodeSet(user);
         string[] memory domains = new string[](nodes.length);

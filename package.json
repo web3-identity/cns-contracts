@@ -1,6 +1,6 @@
 {
   "name": "@web3identity/cns-contracts",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "files": [
     "build/contracts/ENS.json",
     "build/contracts/BaseRegistrarImplementation.json",
-    "build/contracts/ETHRegistrarController.json",
+    "build/contracts/Web3RegistrarController.json",
     "build/contracts/PublicResolver.json",
     "build/contracts/NameWrapper.json",
     "build/contracts/ReverseRegistrar.json",

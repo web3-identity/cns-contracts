@@ -27,7 +27,7 @@ async function main() {
     // @ts-ignore
     const [account] = await conflux.getSigners();
     
-    // await purchaseDomain(account, 'jiuhua2');
+    // await purchaseDomain(account, 'heyman2');
 
     // await claimReverseDomain(account);
 
@@ -35,20 +35,30 @@ async function main() {
 
     // await registry();
 
-    // await nameWrapper();
-
+    await nameWrapper();
 
     // @ts-ignore
     const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
 
-    await Web3Controller.setPriceOracle('cfxtest:acd51b7m6gufh1przxthzakrnm9w3g544ykhbt3pv5').sendTransaction({
+    /* await Web3Controller.setPriceOracle('cfxtest:acd51b7m6gufh1przxthzakrnm9w3g544ykhbt3pv5').sendTransaction({
         from: account.address
-    }).executed();
-    // @ts-ignore
-    // const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
-    const status = await Web3Controller.labelStatus('xxx#');
-    console.log(status);
+    }).executed(); */
 
+    // @ts-ignore
+    /* const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
+    const status = await Web3Controller.labelStatus('xxx#');
+    console.log(status); */
+
+    // @ts-ignore
+    /* let fiatpricesForOneYear = [10000n, 6100n, 3600n, 600n, 30n];  // cny
+    for(let i = 0; i < fiatpricesForOneYear.length; i++) {
+        fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e8) / (3600n * 24n * 365n);
+        if (i === 4) fiatpricesForOneYear[i] = 1n * BigInt(1e6) / (3600n * 24n * 365n);
+    }
+    const receipt2 = await StablePriceOracle.setFiatRentPrice(fiatpricesForOneYear).sendTransaction({
+        from: account.address,
+    }).executed();
+    logReceipt(receipt2, 'StablePriceOracle setFiatPrice'); */
 }
 
 main().catch(console.log);
@@ -74,31 +84,31 @@ async function purchaseDomain(account: any, toBuy: string) {
     const commitment = await Web3Controller
         .makeCommitment(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR);
     
-    // receipt = await Web3Controller
-    //     .commit(commitment).sendTransaction({
-    //         from: account
-    //     })
-    //     .executed();
-    // logReceipt(receipt, 'Commit');
     let receipt;
-
     receipt = await Web3Controller
+        .commit(commitment).sendTransaction({
+            from: account
+        })
+        .executed();
+    logReceipt(receipt, 'Commit');
+    
+    /* receipt = await Web3Controller
         .commitWithName(commitment, labelhash(toBuy)).sendTransaction({
             from: account
         })
         .executed();
-    logReceipt(receipt, 'CommitWithName');
+    logReceipt(receipt, 'CommitWithName'); */
 
     await waitNS(40);
   
     receipt = await Web3Controller
-        .registerWithFiat(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR)
+        // .registerWithFiat(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR)
+        .register(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR)
         .sendTransaction({
             from: account.address,
-            // value: Drip.fromCFX(300),
+            value: Drip.fromCFX(200),
         }).executed();
     logReceipt(receipt, 'Register');
-  
 }
   
 async function claimReverseDomain(account: any) {
@@ -173,26 +183,26 @@ async function registry() {
 
 async function nameWrapper() {
     // @ts-ignore
+    const [account] = await conflux.getSigners();
+    // @ts-ignore
     const contract = await conflux.getContractAt('NameWrapper', NAME_WRAPPER);
 
-    let name = 'abcde3.web3';
-
-    name = 'jiuhua1.web3'
-
+    let name = 'heyman2.web3';
     let node = namehash(name);
     
-    // console.log(node.length);
-    // node = '0x67671454625844516493684665783378455488205828396291306152939852180311092108837';
-    // console.log(node.length);
-
     const owner = await contract.ownerOf(node);
     console.log(owner);
 
-    // @ts-ignore
-    const accounts = await conflux.getSigners();
-    const account = accounts[0];
-    const domains = await contract.userDomains(account.address);
-    console.log(domains);
+    const fuse = await contract.getData(node);
+    console.log(fuse);
+    
+    // const domains = await contract.userDomains(account.address);
+    // console.log(domains);
+
+    let receipt = await contract.setFuses(node, 3).sendTransaction({
+        from: account.address
+    }).executed();
+    console.log(receipt);
 }
 
 async function setWhitelist(account: any) {
