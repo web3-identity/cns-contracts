@@ -28,7 +28,6 @@ error InsufficientValue();
 error Unauthorised(bytes32 node);
 error MaxCommitmentAgeTooLow();
 error MaxCommitmentAgeTooHigh();
-error InvalidLabel(string name);
 
 /**
  * @dev A registrar controller for registering and renewing names at fixed cost.
@@ -170,10 +169,12 @@ contract Web3RegistrarController is
     ) public pure override returns (bytes32) {
         bytes32 label = keccak256(bytes(name));
         if (data.length > 0 && resolver == address(0)) {
-            revert ResolverRequiredWhenDataSupplied();
+            // revert ResolverRequiredWhenDataSupplied();
+            require(false, "ResolverRequiredWhenDataSupplied");
         }
-        if (duration < MIN_REGISTRATION_DURATION) {
-            revert DurationTooShort(duration);
+        if (duration < 1 hours) { // TODO: change back to MIN_REGISTRATION_DURATION
+            // revert DurationTooShort(duration);
+            require(false, "DurationTooShort");
         }
         return
             keccak256(
@@ -193,7 +194,8 @@ contract Web3RegistrarController is
 
     function commit(bytes32 commitment) public override {
         if (commitments[commitment] + maxCommitmentAge >= block.timestamp) {
-            revert UnexpiredCommitmentExists(commitment);
+            // revert UnexpiredCommitmentExists(commitment);
+            require(false, "UnexpiredCommitmentExists");
         }
         commitments[commitment] = block.timestamp;
     }
@@ -211,7 +213,8 @@ contract Web3RegistrarController is
     ) public payable override {
         IFiatPriceOracle.Price memory price = rentPrice(name, duration);
         if (msg.value < price.base + price.premium) {
-            revert InsufficientValue();
+            // revert InsufficientValue();
+            require(false, "InsufficientValue");
         }
 
         _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
@@ -315,7 +318,8 @@ contract Web3RegistrarController is
         uint256 tokenId = uint256(labelhash);
         IFiatPriceOracle.Price memory price = rentPrice(name, duration);
         if (msg.value < price.base) {
-            revert InsufficientValue();
+            // revert InsufficientValue();
+            require(false, "InsufficientValue");
         }
         uint256 expires;
         expires = nameWrapper.renew(tokenId, duration, fuses, wrapperExpiry);
@@ -351,21 +355,25 @@ contract Web3RegistrarController is
     ) internal {
         // Require an old enough commitment.
         if (commitments[commitment] + minCommitmentAge > block.timestamp) {
-            revert CommitmentTooNew(commitment);
+            // revert CommitmentTooNew(commitment);
+            require(false, "CommitmentTooNew");
         }
 
         // If the commitment is too old, or the name is registered, stop
         if (commitments[commitment] + maxCommitmentAge <= block.timestamp) {
-            revert CommitmentTooOld(commitment);
+            // revert CommitmentTooOld(commitment);
+            require(false, "CommitmentTooOld");
         }
         if (!available(name)) {
-            revert NameNotAvailable(name);
+            // revert NameNotAvailable(name);
+            require(false, "NameNotAvailable");
         }
 
         delete (commitments[commitment]);
 
-        if (duration < MIN_REGISTRATION_DURATION) {
-            revert DurationTooShort(duration);
+        if (duration < 1 hours) { // TODO: change back
+            // revert DurationTooShort(duration);
+            require(false, "DurationTooShort");
         }
     }
 

@@ -1118,6 +1118,7 @@ contract NameWrapper is
     }
 
     function _canFusesBeBurned(bytes32 node, uint32 fuses) internal pure {
+        // if trying set fuses except PARENT_CANNOT_CONTROL and PARENT_CANNOT_CONTROL & CANNOT_UNWRAP is not burned
         if (
             fuses & ~PARENT_CANNOT_CONTROL != 0 &&
             fuses & (PARENT_CANNOT_CONTROL | CANNOT_UNWRAP) !=
