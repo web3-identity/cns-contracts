@@ -51,6 +51,7 @@ STABLE_ORACLE=cfxtest:acd51b7m6gufh1przxthzakrnm9w3g544ykhbt3pv5
 WEB3_CONTROLLER=cfxtest:acbrnwph2609zbf21np0501d87xb9dnvuakpv911xk 
 PUBLIC_RESOLVER=cfxtest:acecxexm0pg268m44jncw5bmagwwmun53jj9msmadj
 NAME_WHITELIST=cfxtest:acb7w3sxhtt9rxj8c8y426scdc54266fwu1f05x2rm
+FIFS_REGISTRAR=cfxtest:ach99hwxh466x0t3mk775vt51u7af8663avae4gy1m # for test top domain
 ```
 
 ## FAQs
