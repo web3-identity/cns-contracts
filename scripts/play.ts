@@ -1,5 +1,6 @@
 import hre from 'hardhat';
 import { format, Drip, Contract, address } from 'js-conflux-sdk'
+import { StablePriceOracle__factory } from '../typechain-types';
 import { 
     logReceipt, 
     ROOT_NODE, 
@@ -35,7 +36,7 @@ async function main() {
 
     // await registry();
 
-    await nameWrapper();
+    // await nameWrapper();
 
     // @ts-ignore
     const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
@@ -44,21 +45,36 @@ async function main() {
         from: account.address
     }).executed(); */
 
-    // @ts-ignore
-    /* const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
-    const status = await Web3Controller.labelStatus('xxx#');
-    console.log(status); */
+    
+    /* await Web3Controller.setLabel45Quota(50000).sendTransaction({
+        from: account.address,
+    }).executed(); */
+
+    
+    const status = await Web3Controller.labelStatus('1234');
+    console.log(status);
 
     // @ts-ignore
-    /* let fiatpricesForOneYear = [10000n, 6100n, 3600n, 600n, 30n];  // cny
+    // const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
+
+    /* // @ts-ignore
+    let fiatpricesForOneYear = [10000n, 6100n, 3600n, 600n, 30n];  // cny
     for(let i = 0; i < fiatpricesForOneYear.length; i++) {
         fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e8) / (3600n * 24n * 365n);
-        if (i === 4) fiatpricesForOneYear[i] = 1n * BigInt(1e6) / (3600n * 24n * 365n);
+        if (i === 4) fiatpricesForOneYear[i] = 0n;
     }
+    console.log(fiatpricesForOneYear);
     const receipt2 = await StablePriceOracle.setFiatRentPrice(fiatpricesForOneYear).sendTransaction({
         from: account.address,
     }).executed();
     logReceipt(receipt2, 'StablePriceOracle setFiatPrice'); */
+
+    // let p1 = await StablePriceOracle.fiatPrice5Letter();
+    // console.log(p1);
+
+    // const price = await Web3Controller.rentPriceInFiat('hi', ONE_YEAR);
+    // console.log(price);
+    
 }
 
 main().catch(console.log);
@@ -143,7 +159,7 @@ async function claimReverseDomain(account: any) {
 async function resolve(account: any) {
     // @ts-ignore
     const ENSRegistry = await conflux.getContractAt('ENSRegistry', ENS_REGISTRY);
-    const name = 'jiuhua1.web3';
+    const name = 'heymancc.web3';
     const node = namehash(name);
     const owner = await ENSRegistry.owner(node);
     console.log('owner', owner);
@@ -152,9 +168,9 @@ async function resolve(account: any) {
     const PublicResolver = await conflux.getContractAt('PublicResolver', PUBLIC_RESOLVER);
 
     // set addr
-    let tx = await PublicResolver.setAddr(node, account.address).sendTransaction({
+    /* let tx = await PublicResolver.setAddr(node, account.address).sendTransaction({
         from: account
-    }).executed();
+    }).executed(); */
 
     /* const { hexAddress: addressInBytes } = address.decodeCfxAddress(account.address);
     console.log('addressInBytes', addressInBytes);
@@ -164,7 +180,6 @@ async function resolve(account: any) {
 
     const addr = await PublicResolver.addr(node);
     console.log('addr', addr);
-    
 }
 
 async function registry() {
