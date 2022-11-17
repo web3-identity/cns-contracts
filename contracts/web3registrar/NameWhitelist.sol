@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "solidity-stringutils/strings.sol";
+import "solidity-stringutils/src/strings.sol";
 import "./INameWhitelist.sol";
 // import "hardhat/console.sol";
 

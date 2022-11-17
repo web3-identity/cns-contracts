@@ -10,10 +10,12 @@ const {
 
 async function main() {
     let addrs = [
-        'cfxtest:acc1ttg7287cybsdy6bn0002nzepypn29yavjbj36g',
+        'cfxtest:achg113s8916v2u756tvf6hdvmbsb73b16ykt1pvwm',
+        'cfxtest:ach1p03gkptxz07p4ecn66gjpd0xrnkkbj1n6p96d5',
+        'cfxtest:acc1ttg7287cybsdy6bn0002nzepypn29yavjbj36g',  
         'cfxtest:acdc4xzy0pg1dzrbajgmv8nw3cjyj6ezn2dzncc4w5',
-        'cfxtest:acbrnwph2609zbf21np0501d87xb9dnvuakpv911xk',  
-        'cfxtest:acecxexm0pg268m44jncw5bmagwwmun53jj9msmadj',
+        'cfxtest:acbrnwph2609zbf21np0501d87xb9dnvuakpv911xk',
+        'cfxtest:acecxexm0pg268m44jncw5bmagwwmun53jj9msmadj'
     ];
 
     for (let addr of addrs) {
