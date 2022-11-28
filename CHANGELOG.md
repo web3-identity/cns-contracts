@@ -1,6 +1,10 @@
 CHANGELOG
 ===
 
+## v0.2.2
+
+1. Change default coin type to `503`, rename PublicResolver to CNSPublicResolver
+
 ## v0.2.1
 
 1. Optimize controller code
