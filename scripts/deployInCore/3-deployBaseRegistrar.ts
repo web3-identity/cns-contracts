@@ -9,8 +9,7 @@ const {
 
 async function main() {
   // @ts-ignore
-  const accounts = await conflux.getSigners();
-  const account = accounts[0];
+  const [account] = await conflux.getSigners();
   // @ts-ignore
   const BaseRegistrarImplementation = await conflux.getContractFactory('BaseRegistrarImplementation');
   const receipt = await BaseRegistrarImplementation.constructor(process.env.ENS_REGISTRY, WEB3_NAMEHASH).sendTransaction({

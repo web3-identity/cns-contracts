@@ -8,8 +8,7 @@ const DEFAULT_TOKEN_URI = 'http://a.xyz/{id}.json';
 
 async function main() {
   // @ts-ignore
-  const accounts = await conflux.getSigners();
-  const account = accounts[0];
+  const [account] = await conflux.getSigners();
   
   // @ts-ignore
   const StaticMetadataService = await conflux.getContractFactory('StaticMetadataService');
