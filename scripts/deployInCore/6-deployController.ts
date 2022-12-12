@@ -9,7 +9,7 @@ async function main() {
   const [account] = await conflux.getSigners();
   // @ts-ignore
   const WEB3RegistrarController = await conflux.getContractFactory('Web3RegistrarController');
-  const minCommitmentAge = 30; // s
+  const minCommitmentAge = 10; // s
   const maxCommitmentAge = 600; // s
   const receipt = await WEB3RegistrarController.constructor(
     process.env.BASE_REGISTRAR, 

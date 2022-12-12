@@ -1,14 +1,16 @@
 import hre from 'hardhat';
 import { logReceipt } from '../utils';
+import path from 'path';
+import fs from 'fs';
 const {
     conflux,    // The Conflux instance
-  } = hre;
+} = hre;
 
 async function main() {
     // @ts-ignore
     const [account] = await conflux.getSigners();
     // @ts-ignore
-    let nameWhitelist = await conflux.getContractAt('NameWhitelist', receipt.contractCreated);
+    let nameWhitelist = await conflux.getContractAt('NameWhitelist', process.env.NAME_WHITELIST);
     await feedReservedNames(nameWhitelist, account);
 }
 

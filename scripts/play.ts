@@ -45,6 +45,10 @@ async function main() {
         from: account.address
     }).executed(); */
 
+    await Web3Controller.setCommitmentAge(10, 600).sendTransaction({
+        from: account.address
+    }).executed();
+
     
     /* await Web3Controller.setLabel45Quota(50000).sendTransaction({
         from: account.address,
@@ -82,7 +86,7 @@ async function main() {
     // const price = await Web3Controller.rentPriceInFiat('hi', ONE_YEAR);
     // console.log(price);
     
-    await setMetadataUrlService();
+    // await setMetadataUrlService();
 }
 
 main().catch(console.log);
