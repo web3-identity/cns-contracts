@@ -1,5 +1,4 @@
 import hre from 'hardhat';
-// import { format, Drip, Contract } from 'js-conflux-sdk'
 import { 
     logReceipt, 
     ROOT_NODE, 
@@ -23,8 +22,7 @@ const {
 
 async function main() {
     // @ts-ignore
-    const accounts = await conflux.getSigners();
-    const account = accounts[0];
+    const [account] = await conflux.getSigners();
     
     await setup(account);
 }

@@ -26,7 +26,7 @@ async function main() {
   const receipt = await NameWrapper.constructor(process.env.ENS_REGISTRY, process.env.BASE_REGISTRAR, staticMetadataServiceAddr).sendTransaction({
     from: account.address,
   }).executed();
-  logReceipt(receipt, 'NameWrapper');
+  logReceipt(receipt, 'NameWrapper Implementation');
 
   const implAddr = receipt.contractCreated;
 
@@ -38,7 +38,7 @@ async function main() {
   const receipt2 = await Proxy1967.constructor(implAddr, initData).sendTransaction({
       from: account.address,
   }).executed();
-  logReceipt(receipt2, 'NameWrapper Proxy');
+  logReceipt(receipt2, 'NameWrapper');
 }
 
 main().catch(console.log);

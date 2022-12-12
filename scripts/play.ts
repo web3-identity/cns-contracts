@@ -51,8 +51,15 @@ async function main() {
     }).executed(); */
 
     
-    const status = await Web3Controller.labelStatus('1234');
-    console.log(status);
+    // const status = await Web3Controller.labelStatus('1234');
+    // console.log(status);
+
+    /* const txs = await Web3Controller.setValidLen(4).sendTransaction({
+        from: account.address,
+    }).executed(); */
+
+    // const status = await Web3Controller.valid('12');
+    // console.log(status);
 
     // @ts-ignore
     // const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
@@ -75,6 +82,7 @@ async function main() {
     // const price = await Web3Controller.rentPriceInFiat('hi', ONE_YEAR);
     // console.log(price);
     
+    await setMetadataUrlService();
 }
 
 main().catch(console.log);
@@ -227,4 +235,26 @@ async function setWhitelist(account: any) {
         from: account
     }).executed();
     console.log(receipt);
+}
+
+async function setMetadataUrlService() {
+    const uri = 'http://101.42.88.184/metadatas/{id}.json';
+    // @ts-ignore
+    const accounts = await conflux.getSigners();
+    const account = accounts[0];
+    
+    // @ts-ignore
+    const StaticMetadataService = await conflux.getContractFactory('StaticMetadataService');
+    const receipt1 = await StaticMetadataService.constructor(uri).sendTransaction({
+        from: account.address,
+    }).executed();
+    logReceipt(receipt1, 'StaticMetadataService');
+    const staticMetadataServiceAddr = receipt1.contractCreated;
+
+    // @ts-ignore
+    const NameWrapper = await conflux.getContractAt('NameWrapper', NAME_WRAPPER);
+    const receipt2 = await NameWrapper.setMetadataService(staticMetadataServiceAddr).sendTransaction({
+        from: account.address,
+    }).executed();
+    logReceipt(receipt2, 'NameWrapper.setMetadataService');
 }
