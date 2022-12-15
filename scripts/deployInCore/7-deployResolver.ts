@@ -4,13 +4,14 @@ const {
   conflux,    // The Conflux instance
 } = hre;
 
+const { ENS_REGISTRY, NAME_WRAPPER, WEB3_CONTROLLER, REVERSE_REGISTRAR } = process.env;
+
 async function main() {
   // @ts-ignore
-  const accounts = await conflux.getSigners();
-  const account = accounts[0];
+  const [account] = await conflux.getSigners();
   // @ts-ignore
-  const PublicResolver = await conflux.getContractFactory('PublicResolver');
-  const receipt = await PublicResolver.constructor(process.env.ENS_REGISTRY, process.env.NAME_WRAPPER, process.env.WEB3_CONTROLLER, process.env.REVERSE_REGISTRAR).sendTransaction({
+  const PublicResolver = await conflux.getContractFactory('CNSPublicResolver');
+  const receipt = await PublicResolver.constructor(ENS_REGISTRY, NAME_WRAPPER, WEB3_CONTROLLER, REVERSE_REGISTRAR).sendTransaction({
     from: account.address,
   }).executed();
   

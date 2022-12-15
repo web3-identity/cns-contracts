@@ -6,8 +6,7 @@ const {
 
 async function main() {
   // @ts-ignore
-  const accounts = await conflux.getSigners();
-  const account = accounts[0];
+  const [account] = await conflux.getSigners();
   
   // @ts-ignore
   const DummyOracle = await conflux.getContractFactory('CFXPriceOracle');

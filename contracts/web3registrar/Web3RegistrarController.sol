@@ -65,8 +65,6 @@ contract Web3RegistrarController is
     INameWhitelist public nameWhitelist; // CNS UPDATE
 
     mapping(bytes32 => uint256) public commitments;
-    mapping(bytes32 => uint256) private labelCommitments; // TODO: delete
-    mapping(bytes32 => bytes32) private commitmentLabels; // TODO: delete
     uint256 private validLen = 4; // CNS UPDATE
     uint256 private label45Quota = 50000; // CNS UPDATE
 
@@ -495,6 +493,7 @@ contract Web3RegistrarController is
         validLen = _len;
     }
 
+    // CNS UPDATE
     function setLabel45Quota(uint256 _quota) public onlyRole(ADMIN_ROLE) {
         require(_quota > label45Quota, "invalid quota");
         label45Quota = _quota;

@@ -39,7 +39,7 @@ The Registry contract is same with [`ENSRegistry.sol`](https://github.com/ensdom
 ### Install
 
 ```bash
-npm install
+yarn
 ```
 
 ### Build
