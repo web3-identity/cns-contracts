@@ -49,7 +49,6 @@ contract NameWrapper is
 {
     using BytesUtils for bytes;
     using EnumerableSet for EnumerableSet.Bytes32Set;
-    using EnumerableSet for EnumerableSet.AddressSet;
 
     ENS public override ens;
     IBaseRegistrar public override registrar;
