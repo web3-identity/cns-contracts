@@ -170,7 +170,7 @@ contract Web3RegistrarController is
             // revert ResolverRequiredWhenDataSupplied();
             require(false, "ResolverRequiredWhenDataSupplied");
         }
-        if (duration < 1 hours) { // TODO: change back to MIN_REGISTRATION_DURATION
+        if (duration < MIN_REGISTRATION_DURATION) {
             // revert DurationTooShort(duration);
             require(false, "DurationTooShort");
         }
@@ -369,7 +369,7 @@ contract Web3RegistrarController is
 
         delete (commitments[commitment]);
 
-        if (duration < 1 hours) { // TODO: change back
+        if (duration < MIN_REGISTRATION_DURATION) {
             // revert DurationTooShort(duration);
             require(false, "DurationTooShort");
         }

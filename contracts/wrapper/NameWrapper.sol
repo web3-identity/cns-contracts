@@ -48,8 +48,7 @@ contract NameWrapper is
     Initializable
 {
     using BytesUtils for bytes;
-    using EnumerableSet for EnumerableSet.Bytes32Set;
-    using EnumerableSet for EnumerableSet.AddressSet;
+    using EnumerableSet for EnumerableSet.Bytes32Set;  // CNS UPDATE
 
     ENS public override ens;
     IBaseRegistrar public override registrar;
@@ -58,14 +57,15 @@ contract NameWrapper is
     string public constant name = "NameWrapper";
 
     bytes32 private constant ETH_NODE =
-        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb; // eth -> web3
+        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb; // CNS UPDATE eth -> web3
     bytes32 private constant ROOT_NODE =
         0x0000000000000000000000000000000000000000000000000000000000000000;
 
     INameWrapperUpgrade public upgradeContract;
     uint64 private constant MAX_EXPIRY = type(uint64).max;
 
-    // CNS UPDATE: used for enumerate all web3 domains of one address
+    // CNS UPDATE
+    // used for enumerate all web3 domains of one address
     // owner => web3 node set
     // Update places: _mint, _burn, transfer
     mapping(address => EnumerableSet.Bytes32Set) private _userNodes;
@@ -80,6 +80,7 @@ contract NameWrapper is
         _init(_ens, _registrar, _metadataService);
     }
 
+    // CNS UPDATE
     function initialize(ENS _ens, IBaseRegistrar _registrar, IMetadataService _metadataService) public initializer {
         _init(_ens, _registrar, _metadataService);
     }
@@ -104,7 +105,7 @@ contract NameWrapper is
         );
         
         names[ROOT_NODE] = "\x00";
-        names[ETH_NODE] = "\x04web3\x00"; // eth -> web3
+        names[ETH_NODE] = "\x04web3\x00"; // CNS UPDATE eth -> web3
     }
 
     function supportsInterface(bytes4 interfaceId)

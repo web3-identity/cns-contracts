@@ -74,3 +74,7 @@ export async function waitNS(sec: number) {
         setTimeout(() => resolve(null), sec * 1000);
     });
 }
+
+export function reverseName(address: string) {
+    return `${format.hexAddress(address).replace('0x', '')}.addr.reverse`;
+}
