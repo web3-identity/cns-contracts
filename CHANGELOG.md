@@ -1,7 +1,7 @@
 CHANGELOG
 ===
 
-Last ens-contracts sync time: 2022.10.7
+Last ens-contracts sync time: 2022.12.22
 
 ## v0.2.3
 
