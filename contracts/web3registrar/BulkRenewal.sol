@@ -21,10 +21,10 @@ contract BulkRenewal is IBulkRenewal {
         ens = _ens;
     }
 
-    function getController() internal view returns (Web3RegistrarController) {
+    function getController() internal view returns (ETHRegistrarController) {
         Resolver r = Resolver(ens.resolver(ETH_NAMEHASH));
         return
-            Web3RegistrarController(
+            ETHRegistrarController(
                 r.interfaceImplementer(
                     ETH_NAMEHASH,
                     type(IETHRegistrarController).interfaceId
@@ -38,7 +38,7 @@ contract BulkRenewal is IBulkRenewal {
         override
         returns (uint256 total)
     {
-        Web3RegistrarController controller = getController();
+        ETHRegistrarController controller = getController();
         uint256 length = names.length;
         for (uint256 i = 0; i < length; ) {
             IPriceOracle.Price memory price = controller.rentPrice(
@@ -57,7 +57,7 @@ contract BulkRenewal is IBulkRenewal {
         payable
         override
     {
-        Web3RegistrarController controller = getController();
+        ETHRegistrarController controller = getController();
         uint256 length = names.length;
         uint256 total;
         for (uint256 i = 0; i < length; ) {

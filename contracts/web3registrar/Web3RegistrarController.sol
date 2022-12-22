@@ -1,26 +1,27 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ~0.8.17;
 
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
-import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-
 import {BaseRegistrarImplementation} from "@ensdomains/ens-contracts/contracts/ethregistrar/BaseRegistrarImplementation.sol";
 import {StringUtils} from "@ensdomains/ens-contracts/contracts/ethregistrar/StringUtils.sol";
 import {Resolver} from "@ensdomains/ens-contracts/contracts/resolvers/Resolver.sol";
 import {ReverseRegistrar} from "@ensdomains/ens-contracts/contracts/registry/ReverseRegistrar.sol";
-import {IETHRegistrarController} from "@ensdomains/ens-contracts/contracts/ethregistrar/IETHRegistrarController.sol";
+import {IETHRegistrarController, IPriceOracle} from "@ensdomains/ens-contracts/contracts/ethregistrar/IETHRegistrarController.sol";
+
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {INameWrapper} from "@ensdomains/ens-contracts/contracts/wrapper/INameWrapper.sol";
 import {ERC20Recoverable} from "@ensdomains/ens-contracts/contracts/utils/ERC20Recoverable.sol";
 
 import {INameWhitelist} from "./INameWhitelist.sol";
-import {IFiatPriceOracle} from "./IFiatPriceOracle.sol";
 import {ICNameWrapper} from '../wrapper/ICNameWrapper.sol';
+import {IFiatPriceOracle} from "./IFiatPriceOracle.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 error CommitmentTooNew(bytes32 commitment);
 error CommitmentTooOld(bytes32 commitment);
 error NameNotAvailable(string name);
-error NameLocked(string name);
 error DurationTooShort(uint256 duration);
 error ResolverRequiredWhenDataSupplied();
 error UnexpiredCommitmentExists(bytes32 commitment);
@@ -32,15 +33,35 @@ error MaxCommitmentAgeTooHigh();
 /**
  * @dev A registrar controller for registering and renewing names at fixed cost.
  */
-contract Web3RegistrarController is
-    AccessControl,
+contract ETHRegistrarController is
+    // Ownable,
     IETHRegistrarController,
+    IERC165,
     ERC20Recoverable,
+    AccessControl,
     Initializable
 {
     using StringUtils for *;
     using Address for address;
 
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE"); // CNS UPDATE
+    uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
+    bytes32 private constant ETH_NODE =
+        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb; // CNS UPDATE: eth -> web3
+    uint64 private constant MAX_EXPIRY = type(uint64).max;
+    BaseRegistrarImplementation base;
+    IFiatPriceOracle public prices;  // CNS UPDATE
+    uint256 public minCommitmentAge;
+    uint256 public maxCommitmentAge;
+    ReverseRegistrar public reverseRegistrar;
+    ICNameWrapper public nameWrapper;
+
+    mapping(bytes32 => uint256) public commitments;
+
+    INameWhitelist public nameWhitelist; // CNS UPDATE
+    uint256 private validLen = 4; // CNS UPDATE
+    uint256 private label45Quota = 50000; // CNS UPDATE
+    // CNS UPDATE
     enum LabelStatus {
         Valid,
         TooShort,
@@ -51,23 +72,6 @@ contract Web3RegistrarController is
         SoldOut
     }
 
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE"); // CNS UPDATE
-    uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
-    bytes32 private constant ETH_NODE =
-        0x587d09fe5fa45354680537d38145a28b772971e0f293af3ee0c536fc919710fb;  // CNS UPDATE: eth -> web3
-    uint64 private constant MAX_EXPIRY = type(uint64).max;
-    BaseRegistrarImplementation base;
-    IFiatPriceOracle public prices;
-    uint256 public minCommitmentAge;
-    uint256 public maxCommitmentAge;
-    ReverseRegistrar public reverseRegistrar;
-    ICNameWrapper public nameWrapper;
-    INameWhitelist public nameWhitelist; // CNS UPDATE
-
-    mapping(bytes32 => uint256) public commitments;
-    uint256 private validLen = 4; // CNS UPDATE
-    uint256 private label45Quota = 50000; // CNS UPDATE
-
     event NameRegistered(
         string name,
         bytes32 indexed label,
@@ -76,7 +80,6 @@ contract Web3RegistrarController is
         uint256 premium,
         uint256 expires
     );
-
     event NameRenewed(
         string name,
         bytes32 indexed label,
@@ -139,14 +142,14 @@ contract Web3RegistrarController is
         public
         view
         override
-        returns (IFiatPriceOracle.Price memory price)
+        returns (IPriceOracle.Price memory price)
     {
         bytes32 label = keccak256(bytes(name));
         price = prices.price(name, base.nameExpires(uint256(label)), duration);
     }
 
     function valid(string memory name) public view returns (bool) {
-        return name.strlen() >= validLen;
+        return name.strlen() >= validLen; // CNS UPDATE
     }
 
     function available(string memory name) public view override returns (bool) {
@@ -162,9 +165,8 @@ contract Web3RegistrarController is
         address resolver,
         bytes[] calldata data,
         bool reverseRecord,
-        uint32 fuses,
-        uint64 wrapperExpiry
-    ) public pure override returns (bytes32) {
+        uint16 ownerControlledFuses
+    ) public pure returns (bytes32) {
         bytes32 label = keccak256(bytes(name));
         if (data.length > 0 && resolver == address(0)) {
             // revert ResolverRequiredWhenDataSupplied();
@@ -180,12 +182,11 @@ contract Web3RegistrarController is
                     label,
                     owner,
                     duration,
+                    secret,
                     resolver,
                     data,
-                    secret,
                     reverseRecord,
-                    fuses,
-                    wrapperExpiry
+                    ownerControlledFuses
                 )
             );
     }
@@ -206,16 +207,15 @@ contract Web3RegistrarController is
         address resolver,
         bytes[] calldata data,
         bool reverseRecord,
-        uint32 fuses,
-        uint64 wrapperExpiry
-    ) public payable override {
-        IFiatPriceOracle.Price memory price = rentPrice(name, duration);
+        uint16 ownerControlledFuses
+    ) public payable {
+        IPriceOracle.Price memory price = rentPrice(name, duration);
         if (msg.value < price.base + price.premium) {
             // revert InsufficientValue();
             require(false, "InsufficientValue");
         }
 
-        _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
+        _register(name, owner, duration, secret, resolver, data, reverseRecord, ownerControlledFuses);
 
         if (msg.value > (price.base + price.premium)) {
             payable(msg.sender).transfer(
@@ -232,8 +232,7 @@ contract Web3RegistrarController is
         address resolver,
         bytes[] calldata data,
         bool reverseRecord,
-        uint32 fuses,
-        uint64 wrapperExpiry
+        uint16 ownerControlledFuses
     ) internal returns (uint256) {
         require(labelStatus(name) == LabelStatus.Valid, "Label is not valid to register");
 
@@ -250,8 +249,7 @@ contract Web3RegistrarController is
                 resolver,
                 data,
                 reverseRecord,
-                fuses,
-                wrapperExpiry
+                ownerControlledFuses
             )
         );
 
@@ -260,8 +258,7 @@ contract Web3RegistrarController is
             owner,
             duration,
             resolver,
-            fuses,
-            wrapperExpiry
+            ownerControlledFuses
         );
 
         if (data.length > 0) {
@@ -289,28 +286,12 @@ contract Web3RegistrarController is
         payable
         override
     {
-        _renew(name, duration, 0, 0);
-    }
-
-    function renewWithFuses(
-        string calldata name,
-        uint256 duration,
-        uint32 fuses,
-        uint64 wrapperExpiry
-    ) external payable {
-        bytes32 labelhash = keccak256(bytes(name));
-        bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, labelhash));
-        if (!nameWrapper.isTokenOwnerOrApproved(nodehash, msg.sender)) {
-            revert Unauthorised(nodehash);
-        }
-        _renew(name, duration, fuses, wrapperExpiry);
+        _renew(name, duration);
     }
 
     function _renew(
         string calldata name,
-        uint256 duration,
-        uint32 fuses,
-        uint64 wrapperExpiry
+        uint256 duration
     ) internal {
         bytes32 labelhash = keccak256(bytes(name));
         uint256 tokenId = uint256(labelhash);
@@ -320,7 +301,7 @@ contract Web3RegistrarController is
             require(false, "InsufficientValue");
         }
         uint256 expires;
-        expires = nameWrapper.renew(tokenId, duration, fuses, wrapperExpiry);
+        expires = nameWrapper.renew(tokenId, duration);
 
         if (msg.value > price.base) {
             payable(msg.sender).transfer(msg.value - price.base);
@@ -336,7 +317,7 @@ contract Web3RegistrarController is
     function supportsInterface(bytes4 interfaceID)
         public
         pure
-        override(AccessControl)
+        override(IERC165, AccessControl)
         returns (bool)
     {
         return
@@ -353,25 +334,21 @@ contract Web3RegistrarController is
     ) internal {
         // Require an old enough commitment.
         if (commitments[commitment] + minCommitmentAge > block.timestamp) {
-            // revert CommitmentTooNew(commitment);
-            require(false, "CommitmentTooNew");
+            revert CommitmentTooNew(commitment);
         }
 
         // If the commitment is too old, or the name is registered, stop
         if (commitments[commitment] + maxCommitmentAge <= block.timestamp) {
-            // revert CommitmentTooOld(commitment);
-            require(false, "CommitmentTooOld");
+            revert CommitmentTooOld(commitment);
         }
         if (!available(name)) {
-            // revert NameNotAvailable(name);
-            require(false, "NameNotAvailable");
+            revert NameNotAvailable(name);
         }
 
         delete (commitments[commitment]);
 
         if (duration < MIN_REGISTRATION_DURATION) {
-            // revert DurationTooShort(duration);
-            require(false, "DurationTooShort");
+            revert DurationTooShort(duration);
         }
     }
 
@@ -380,6 +357,7 @@ contract Web3RegistrarController is
         bytes32 label,
         bytes[] calldata data
     ) internal {
+        // use hardcoded .eth namehash
         bytes32 nodehash = keccak256(abi.encodePacked(ETH_NODE, label));
         Resolver resolver = Resolver(resolverAddress);
         resolver.multicallWithNodeCheck(nodehash, data);
@@ -394,7 +372,7 @@ contract Web3RegistrarController is
             msg.sender,
             owner,
             resolver,
-            string.concat(name, ".web3")  // eth -> web3
+            string.concat(name, ".eth")
         );
     }
 
@@ -434,7 +412,7 @@ contract Web3RegistrarController is
     }
 
     // CNS UPDATE
-    function renewWithFiat(string calldata name, uint256 duration, uint32 fuses, uint64 wrapperExpiry) public onlyRole(ADMIN_ROLE)
+    function renewWithFiat(string calldata name, uint256 duration) public onlyRole(ADMIN_ROLE)
     {
         bytes32 labelhash = keccak256(bytes(name));
         uint256 tokenId = uint256(labelhash);
@@ -442,9 +420,7 @@ contract Web3RegistrarController is
         
         expires = nameWrapper.renew(
             tokenId,
-            duration,
-            fuses,
-            wrapperExpiry
+            duration
         );
 
         emit NameRenewed(name, labelhash, 0, expires);
@@ -459,10 +435,9 @@ contract Web3RegistrarController is
         address resolver,
         bytes[] calldata data,
         bool reverseRecord,
-        uint32 fuses,
-        uint64 wrapperExpiry
+        uint16 fuses
     ) public onlyRole(ADMIN_ROLE) {
-        _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses, wrapperExpiry);
+        _register(name, owner, duration, secret, resolver, data, reverseRecord, fuses);
     }
 
     // CNS UPDATE
