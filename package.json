@@ -1,6 +1,6 @@
 {
   "name": "@web3identity/cns-contracts",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
     "build/contracts/PublicResolver.json",
     "build/contracts/NameWrapper.json",
     "build/contracts/ReverseRegistrar.json",
+    "build/contracts/ReverseRecords.json",
     "contracts/**/*.sol",
     "artifacts/contracts"
   ],

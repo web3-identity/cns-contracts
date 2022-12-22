@@ -5,6 +5,7 @@ const PublicResolver = require('./build/contracts/PublicResolver')
 const CNSPublicResolver = require('./build/contracts/CNSPublicResolver')
 const ReverseRegistrar = require('./build/contracts/ReverseRegistrar')
 const NameWrapper = require('./build/contracts/NameWrapper')
+const ReverseRecords = require('./build/contracts/ReverseRecords')
 
 module.exports = {
   BaseRegistrarImplementation,
@@ -15,4 +16,5 @@ module.exports = {
   ReverseRegistrar,
   NameWrapper,
   CNSPublicResolver,
+  ReverseRecords,
 }
