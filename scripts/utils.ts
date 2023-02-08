@@ -78,3 +78,15 @@ export async function waitNS(sec: number) {
 export function reverseName(address: string) {
     return `${format.hexAddress(address).replace('0x', '')}.addr.reverse`;
 }
+
+export function loadPrivateKey() {
+  if (process.env.PRIVATE_KEY) {
+    return process.env.PRIVATE_KEY;
+  } else {
+    // @ts-ignore
+    const keystore = JSON.parse(fs.readFileSync(process.env.KEYSTORE, 'utf8'));
+    // @ts-ignore
+    const privateKeyBuf = sign.decrypt(keystore, process.env.KEYSTORE_PWD);
+    return format.hex(privateKeyBuf);
+  }
+}
