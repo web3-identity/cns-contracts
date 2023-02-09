@@ -9,6 +9,7 @@ import {
     REVERSE_NAMEHASH,
     ONE_YEAR,
     waitNS,
+    reverseName,
 } from './utils';
 const {
   conflux,    // The Conflux instance
@@ -22,35 +23,47 @@ const {
     WEB3_CONTROLLER,
     PUBLIC_RESOLVER,
     STABLE_ORACLE,
+    NAME_WHITELIST,
 } = process.env;
 
 async function main() {
     // @ts-ignore
     const [account] = await conflux.getSigners();
-    
-    // await purchaseDomain(account, 'heyman2');
+    console.log('Account', account.address);
 
-    // await claimReverseDomain(account);
+    // await purchaseDomain(account, 'jiuhuaw');
 
-    // await resolve(account);
+    // await claimReverseDomain(account, 'jihuaw');
 
-    // await registry();
+    // await resolve(account, 'maodea');
+
+    // await registry(account);
 
     // await nameWrapper();
 
+    // await setWhitelist(account);
+
     // @ts-ignore
     const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
+    let receipt = await Web3Controller.addAdmin('cfxtest:aangm324bxnw9umenr26sg0yf0ek4fv2bun05unabb').sendTransaction({
+        from: account.address
+    }).executed();
+    logReceipt(receipt, 'grant role');
 
     /* await Web3Controller.setPriceOracle('cfxtest:acd51b7m6gufh1przxthzakrnm9w3g544ykhbt3pv5').sendTransaction({
         from: account.address
     }).executed(); */
 
-    await Web3Controller.setCommitmentAge(10, 600).sendTransaction({
+    /* await Web3Controller.setCommitmentAge(10, 600).sendTransaction({
         from: account.address
-    }).executed();
+    }).executed(); */
 
     
     /* await Web3Controller.setLabel45Quota(50000).sendTransaction({
+        from: account.address,
+    }).executed(); */
+
+    /* await Web3Controller.setValidLen(5).sendTransaction({
         from: account.address,
     }).executed(); */
 
@@ -66,9 +79,9 @@ async function main() {
     // console.log(status);
 
     // @ts-ignore
-    // const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
+    /* const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
 
-    /* // @ts-ignore
+    // @ts-ignore
     let fiatpricesForOneYear = [10000n, 6100n, 3600n, 600n, 30n];  // cny
     for(let i = 0; i < fiatpricesForOneYear.length; i++) {
         fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e8) / (3600n * 24n * 365n);
@@ -87,6 +100,11 @@ async function main() {
     // console.log(price);
     
     // await setMetadataUrlService();
+
+    // @ts-ignore
+    // const baseRegistrar = await conflux.getContractAt('BaseRegistrarImplementation', BASE_REGISTRAR);
+    // let owner = await baseRegistrar.ownerOf(namehash('hexxxhexdsssxxx.web3'));
+    // console.log(owner);
 }
 
 main().catch(console.log);
@@ -105,12 +123,18 @@ async function purchaseDomain(account: any, toBuy: string) {
     console.log(`Rent price of ${toBuy}`, new Drip(rentPrice[0]).toCFX(), 'CFX');
     const labelStatus = await Web3Controller.labelStatus(toBuy);
     console.log(`Label status of ${toBuy}`, labelStatus);
+
     if (labelStatus !== 0n) {
         throw new Error('Label is not available');
     }
-    
+
+    const data: string[] = [];
+
+    const setAddrData = PublicResolver.setAddr(namehash(`${toBuy}.web3`), 503, address.decodeCfxAddress(account.address).hexAddress).data;
+    data.push(setAddrData);
+
     const commitment = await Web3Controller
-        .makeCommitment(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR);
+        .makeCommitment(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, data, true, 0, ONE_YEAR);
     
     let receipt;
     receipt = await Web3Controller
@@ -120,18 +144,11 @@ async function purchaseDomain(account: any, toBuy: string) {
         .executed();
     logReceipt(receipt, 'Commit');
     
-    /* receipt = await Web3Controller
-        .commitWithName(commitment, labelhash(toBuy)).sendTransaction({
-            from: account
-        })
-        .executed();
-    logReceipt(receipt, 'CommitWithName'); */
-
-    await waitNS(40);
+    await waitNS(20);
   
     receipt = await Web3Controller
-        // .registerWithFiat(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR)
-        .register(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, [], true, 0, ONE_YEAR)
+        // .registerWithFiat(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, data, true, 0, ONE_YEAR)
+        .register(toBuy, account.address, ONE_YEAR, labelhash(toBuy), PublicResolver.address, data, true, 0, ONE_YEAR)
         .sendTransaction({
             from: account.address,
             value: Drip.fromCFX(200),
@@ -139,7 +156,7 @@ async function purchaseDomain(account: any, toBuy: string) {
     logReceipt(receipt, 'Register');
 }
   
-async function claimReverseDomain(account: any) {
+async function claimReverseDomain(account: any, toBuy: string) {
     // @ts-ignore
     const ENSRegistry = await conflux.getContractAt('ENSRegistry', ENS_REGISTRY);
     // @ts-ignore
@@ -147,8 +164,6 @@ async function claimReverseDomain(account: any) {
     // @ts-ignore
     const PublicResolver = await conflux.getContractAt('PublicResolver', PUBLIC_RESOLVER);
 
-    const toBuy = 'jiuhua';
-  
     let receipt
     receipt = await ReverseRegistrar.claimForAddr(account.address, account.address, PublicResolver.address)
       .sendTransaction({
@@ -157,10 +172,10 @@ async function claimReverseDomain(account: any) {
       .executed();
     logReceipt(receipt, 'Set default resolver for reverse registrar');
   
-    const owner = await ENSRegistry.owner(namehash(`${format.hexAddress(account.address).replace('0x', '')}.addr.reverse`))
-    console.log(owner)
+    const owner = await ENSRegistry.owner(namehash(reverseName(account.address)))
+    console.log(account.address, 'reverse record owner', owner);
   
-    receipt = await PublicResolver.setName(namehash(`${format.hexAddress(account.address).replace('0x', '')}.addr.reverse`), 'jiuhua.web3')
+    receipt = await PublicResolver.setName(namehash(reverseName(account.address)), `${toBuy}.web3`)
       .sendTransaction({
         from: account
       })
@@ -168,10 +183,10 @@ async function claimReverseDomain(account: any) {
     logReceipt(receipt, 'Set default resolver for reverse registrar');
 }
 
-async function resolve(account: any) {
+async function resolve(account: any, label: string) {
     // @ts-ignore
     const ENSRegistry = await conflux.getContractAt('ENSRegistry', ENS_REGISTRY);
-    const name = 'heymancc.web3';
+    const name =  label + '.web3';
     const node = namehash(name);
     const owner = await ENSRegistry.owner(node);
     console.log('owner', owner);
@@ -194,18 +209,23 @@ async function resolve(account: any) {
     console.log('addr', addr);
 }
 
-async function registry() {
+async function registry(account: any) {
     // @ts-ignore
     const ENSRegistry = await conflux.getContractAt('ENSRegistry', ENS_REGISTRY);
 
-    const name = 'jiuhua1.web3';
-
+    const name = 'dao';
     const node = namehash(name);
 
-    const owner = await ENSRegistry.owner(node);
+    let receipt;
+    receipt = await ENSRegistry.setSubnodeRecord(node, labelhash('wys'), 'cfxtest:aarzbz0w5dnhtdtd307v1c8wapxj1714z2esy5redn', PUBLIC_RESOLVER, 0)
+        .sendTransaction({
+            from: account
+        })
+        .executed();
+    logReceipt(receipt, 'Set subnode owner');
+
+    const owner = await ENSRegistry.owner(namehash('wys.dao'));
     console.log(owner);
-
-
 }
 
 async function nameWrapper() {
@@ -220,22 +240,34 @@ async function nameWrapper() {
     const owner = await contract.ownerOf(node);
     console.log(owner);
 
-    const fuse = await contract.getData(node);
-    console.log(fuse);
+    const userDomains = await contract.userDomains(account.address);
+    console.log(userDomains);
+
+    // const fuse = await contract.getData(node);
+    // console.log(fuse);
     
     // const domains = await contract.userDomains(account.address);
     // console.log(domains);
 
-    let receipt = await contract.setFuses(node, 3).sendTransaction({
-        from: account.address
+    // let receipt = await contract.setFuses(node, 3).sendTransaction({
+    //     from: account.address
+    // }).executed();
+    // console.log(receipt);
+}
+
+async function setWhitelistContract(account: any, whiteList: string) {
+    // @ts-ignore
+    const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
+    const receipt = await Web3Controller.setNameWhitelist(whiteList).sendTransaction({
+        from: account
     }).executed();
     console.log(receipt);
 }
 
 async function setWhitelist(account: any) {
     // @ts-ignore
-    const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
-    const receipt = await Web3Controller.setNameWhitelist('cfxtest:acekf9jn798v05m654gbbb6kj9ktxsxd2ypdsr3us9').sendTransaction({
+    const Web3Controller = await conflux.getContractAt('NameWhitelist', NAME_WHITELIST);
+    const receipt = await Web3Controller.setWhiteList('_', true).sendTransaction({
         from: account
     }).executed();
     console.log(receipt);

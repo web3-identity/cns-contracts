@@ -8,8 +8,8 @@ export function logReceipt(receipt: TransactionReceipt, name?: string) {
   if (name) {
     console.log(`Receipt ${name} =============`);
   }
+  console.log("Transaction hash:", receipt.transactionHash);
   if (receipt.outcomeStatus == 0) {
-    console.log("Transaction succeeded:", receipt.transactionHash);
     if (receipt.contractCreated) {
       console.log("Contract created at:", receipt.contractCreated);
     }

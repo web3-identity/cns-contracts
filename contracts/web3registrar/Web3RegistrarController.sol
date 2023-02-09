@@ -95,6 +95,7 @@ contract Web3RegistrarController is
         ICNameWrapper _nameWrapper
     ) {
         _setupRole(ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
     }
 
@@ -108,6 +109,7 @@ contract Web3RegistrarController is
         address _admin
     ) public initializer {
         _setupRole(ADMIN_ROLE, _admin);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _init(_base, _prices, _minCommitmentAge, _maxCommitmentAge, _reverseRegistrar, _nameWrapper);
     }
 
@@ -171,7 +173,6 @@ contract Web3RegistrarController is
             // revert ResolverRequiredWhenDataSupplied();
             require(false, "ResolverRequiredWhenDataSupplied");
         }
-        // CNS UPDATE
         if (duration < MIN_REGISTRATION_DURATION) {
             // revert DurationTooShort(duration);
             require(false, "DurationTooShort");
@@ -191,7 +192,7 @@ contract Web3RegistrarController is
             );
     }
 
-    // CNS UPDATE
+    // CNS UPDATE An overload function to compatible with old version
     function makeCommitment(
         string memory name,
         address owner,
@@ -214,7 +215,7 @@ contract Web3RegistrarController is
         commitments[commitment] = block.timestamp;
     }
 
-    // CNS UPDATE
+    // CNS UPDATE An overload function to compatible with old version
     function register(
         string calldata name,
         address owner,
@@ -498,5 +499,10 @@ contract Web3RegistrarController is
     function setLabel45Quota(uint256 _quota) public onlyRole(ADMIN_ROLE) {
         require(_quota > label45Quota, "invalid quota");
         label45Quota = _quota;
+    }
+
+    // CNS UPDATE
+    function addAdmin(address addr) public onlyRole(ADMIN_ROLE) {
+        _setupRole(ADMIN_ROLE, addr);
     }
 }

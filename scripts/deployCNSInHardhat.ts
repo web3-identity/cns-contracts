@@ -3,7 +3,7 @@ import { WEB3_NAMEHASH, ROOT_NODE, namehash, labelhash } from './utils'
 
 export async function deployCNS() {
   const [admin] = await ethers.getSigners();
-  const adminAddr = admin.address;
+//   const adminAddr = admin.address;
 //   console.log(`The default signer`, adminAddr);
 
   // deploy contracts ===========================
