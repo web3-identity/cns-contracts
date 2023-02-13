@@ -17,11 +17,17 @@ contract CNSUtil is Ownable  {
 
     function addr(bytes32 node) public view returns (address) {
         address resolver = ens.resolver(node);
+        if (resolver == address(0)) {
+            return address(0);
+        }
         return Resolver(resolver).addr(node);
     }
 
     function addr(bytes32 node, uint256 coinType) public view returns (bytes memory) {
         address resolver = ens.resolver(node);
+        if (resolver == address(0)) {
+            return bytes("");
+        }
         return Resolver(resolver).addr(node, coinType);
     }
 

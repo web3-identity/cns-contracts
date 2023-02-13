@@ -54,7 +54,7 @@ PUBLIC_RESOLVER=cfxtest:acbfyf69zaxau5a23w10dgyrmb0hrz4p9pewn6sejp
 NAME_WHITELIST=cfxtest:acex1d5fm2tcd2s9wd7p1ak9t47advbwvud2yhjw3v
 FIFS_REGISTRAR=cfxtest:achbbpdja6c3f4s6efuh7ckr85p5pf8xhesep50jv6
 REVERSE_RECORDS=cfxtest:acgddsj3kah2f4f4c6959bvc4732f4juyj90h0zmg2
-CNS_UTIL=cfxtest:ach3nemhabnduenb8w46abkwsd8701auspkzfea2bd
+CNS_UTIL=cfxtest:aca4w63ypgup8tryphprzfcrh5kh0hpbgasb2z3s0j
 ```
 
 ## FAQs
