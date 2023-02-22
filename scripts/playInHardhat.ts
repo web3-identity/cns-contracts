@@ -27,14 +27,14 @@ async function main() {
   console.log(`price: ${price[0]}`);
 
   const fuseExpiry = Number.parseInt((Date.now() / 1000).toString()) + ONE_YEAR;
-  const commitment = await ethRegistrarController.makeCommitment(toBuy, adminAddr, ONE_YEAR, labelhash(toBuy), publicResolver.address, [], true, 64, fuseExpiry);
+  const commitment = await ethRegistrarController["makeCommitment(string,address,uint256,bytes32,address,bytes[],bool,uint16,uint64)"](toBuy, adminAddr, ONE_YEAR, labelhash(toBuy), publicResolver.address, [], true, 0, fuseExpiry);
   
   tx = await ethRegistrarController.commit(commitment);
   await tx.wait();
 
   await mine(30);
   
-  tx = await ethRegistrarController.register(toBuy, adminAddr, ONE_YEAR, labelhash(toBuy), publicResolver.address, [], true, 64, fuseExpiry, {
+  tx = await ethRegistrarController['register(string,address,uint256,bytes32,address,bytes[],bool,uint16,uint64)'](toBuy, adminAddr, ONE_YEAR, labelhash(toBuy), publicResolver.address, [], true, 0, fuseExpiry, {
     value: price[0]
   });
   await tx.wait();
@@ -52,7 +52,7 @@ async function main() {
   for(let i = 0; i < 10; i++) {
     const _toBuy = `jiuhua${i}`;
     const secret = labelhash(_toBuy);
-    const commitment = await ethRegistrarController.makeCommitment(_toBuy, adminAddr, ONE_YEAR, secret, publicResolver.address, [], true, 0, ONE_YEAR);
+    const commitment = await ethRegistrarController["makeCommitment(string,address,uint256,bytes32,address,bytes[],bool,uint16,uint64)"](_toBuy, adminAddr, ONE_YEAR, secret, publicResolver.address, [], true, 0, ONE_YEAR);
   
     tx = await ethRegistrarController.commit(commitment);
     await tx.wait();

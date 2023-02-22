@@ -10,12 +10,12 @@ const {
 
 async function main() {
     let addrs = [
-        'cfxtest:achg113s8916v2u756tvf6hdvmbsb73b16ykt1pvwm',
-        'cfxtest:ach1p03gkptxz07p4ecn66gjpd0xrnkkbj1n6p96d5',
-        'cfxtest:acc1ttg7287cybsdy6bn0002nzepypn29yavjbj36g',  
-        'cfxtest:acdc4xzy0pg1dzrbajgmv8nw3cjyj6ezn2dzncc4w5',
-        'cfxtest:acbrnwph2609zbf21np0501d87xb9dnvuakpv911xk',
-        'cfxtest:acecxexm0pg268m44jncw5bmagwwmun53jj9msmadj'
+        'cfxtest:acd3rm7y183trhpzvz8m3y72kx1abk4d0jh842585a',
+        'cfxtest:acfmezysbf86jy3jnw835bnamxp08dxzd61w5ur8hy',
+        'cfxtest:acbp262fvjzva1raef4n3e5yyszy9spsc20cmztnya',  
+        'cfxtest:acbttry22rsx7k54ms6hbkc0c8tf680u5pc0r31ef5',
+        'cfxtest:acde0h4f9nz70h146d4p0wbbx38zamwhue3uce1ndt',
+        'cfxtest:acfcb2fv6t8xrxyyx3x1atwmdrhh5xvfd21zsje216'
     ];
 
     for (let addr of addrs) {
@@ -43,13 +43,13 @@ async function setSponsor(addr: string) {
 
     receipt = await Sponsor.setSponsorForGas(addr, Drip.fromGDrip(5000000)).sendTransaction({
         from: account.address,
-        value: Drip.fromCFX(10),
+        value: Drip.fromCFX(11),
     }).executed();
     logReceipt(receipt, 'setSponsorForGas');
 
     receipt = await Sponsor.setSponsorForCollateral(addr).sendTransaction({
         from: account.address,
-        value: Drip.fromCFX(200),
+        value: Drip.fromCFX(201),
     }).executed();
     logReceipt(receipt, 'setSponsorForCollateral');
 

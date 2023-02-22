@@ -4,7 +4,7 @@ const {
   conflux,    // The Conflux instance
 } = hre;
 
-const { ENS_REGISTRY } = process.env;
+const { ENS_REGISTRY, BASE_REGISTRAR } = process.env;
 
 async function main() {
   // @ts-ignore
@@ -16,6 +16,14 @@ async function main() {
   }).executed();
   
   logReceipt(receipt, 'ReverseRecords');
+
+  // @ts-ignore
+  const CNSUtil = await conflux.getContractFactory('CNSUtil');
+  const receipt1 = await CNSUtil.constructor(ENS_REGISTRY, BASE_REGISTRAR).sendTransaction({
+    from: account.address,
+  }).executed();
+  
+  logReceipt(receipt1, 'CNSUtil');
 }
 
 main().catch(console.log);
