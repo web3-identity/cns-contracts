@@ -265,6 +265,8 @@ contract Web3RegistrarController is
         bool reverseRecord,
         uint16 ownerControlledFuses
     ) internal returns (uint256) {
+        require(labelStatus(name) == LabelStatus.Valid, "LabelInvalid");
+
         IFiatPriceOracle.Price memory price = rentPrice(name, duration);
 
         _consumeCommitment(

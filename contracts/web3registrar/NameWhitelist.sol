@@ -31,7 +31,7 @@ contract NameWhitelist is Ownable, INameWhitelist {
 
     mapping(string => bool) whiteList;
     // mapping(string => bool) blackList;
-    mapping(string => bool) specialNames;  // Reserved names
+    mapping(bytes32 => bool) specialNames;  // Reserved names
 
     constructor() {
         strings.slice memory s1 = CHAR_WHITE_LIST.toSlice();
@@ -96,41 +96,37 @@ contract NameWhitelist is Ownable, INameWhitelist {
         return true;
     }
 
-    /* function isInEmojiBlackList(string memory toCheck) public view returns (bool) {
-        return blackList[toCheck];
-    } */
-
     function isInWhiteList(string memory toCheck) public view returns (bool) {
         return whiteList[toCheck];
     }
 
     function isReserved(string memory label) public view returns (bool) {
-        return specialNames[label];
+        return specialNames[keccak(label)];
     }
 
-    function setSpecialName(string memory name, bool isSpecial) public onlyOwner {
+    function setSpecialName(bytes32 name, bool isSpecial) public onlyOwner {
         specialNames[name] = isSpecial;
     }
 
-    function setSpecialNameBatch(string[] memory names, bool isSpecial) public onlyOwner {
+    function setSpecialNameBatch(bytes32[] memory names, bool isSpecial) public onlyOwner {
         for(uint i = 0; i < names.length; i++) {
             specialNames[names[i]] = isSpecial;
         }
     }
 
-    function setWhiteList(string memory name, bool isWhite) public onlyOwner {
-        whiteList[name] = isWhite;
+    function setWhiteList(string memory char, bool isWhite) public onlyOwner {
+        whiteList[char] = isWhite;
     }
 
-    function setWhiteListBatch(string memory name, bool isWhite) public onlyOwner {
-        strings.slice memory s1 = name.toSlice();
+    function setWhiteListBatch(string memory chars, bool isWhite) public onlyOwner {
+        strings.slice memory s1 = chars.toSlice();
         uint s1Len = s1.len();
         for (uint256 i = 0; i < s1Len; i++) {
             whiteList[s1.nextRune().toString()] = isWhite;
         }
     }
 
-    /* function setBlackList(string memory name, bool isBlack) public onlyOwner {
-        blackList[name] = isBlack;
-    } */
+    function keccak(string memory str) private pure returns (bytes32) {
+        return keccak256(abi.encode(str));
+    }
 }
