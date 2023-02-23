@@ -44,7 +44,7 @@ contract NameWrapper is
     IBaseRegistrar public registrar;
     IMetadataService public metadataService;
     mapping(bytes32 => bytes) public names;
-    string public constant name = "NameWrapper";
+    string public constant name = "CNSNameWrapper";
 
     uint64 private constant GRACE_PERIOD = 90 days;
     bytes32 private constant ETH_NODE =
