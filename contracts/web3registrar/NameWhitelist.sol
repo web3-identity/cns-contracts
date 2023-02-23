@@ -127,6 +127,6 @@ contract NameWhitelist is Ownable, INameWhitelist {
     }
 
     function keccak(string memory str) private pure returns (bytes32) {
-        return keccak256(abi.encode(str));
+        return keccak256(bytes(str));
     }
 }
