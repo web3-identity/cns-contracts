@@ -50,7 +50,7 @@ contract Web3RegistrarController is
     uint256 public minCommitmentAge;
     uint256 public maxCommitmentAge;
     ReverseRegistrar public reverseRegistrar;
-    INameWrapper public nameWrapper;  // CNS UPDATE
+    INameWrapper public nameWrapper;
 
     mapping(bytes32 => uint256) public commitments;
 

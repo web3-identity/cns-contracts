@@ -19,6 +19,11 @@ const config: HardhatUserConfig = {
       url: process.env.RPC_URL,
       accounts: [PRIVATE_KEY],
       chainId: Number(process.env.NETWORK_ID as unknown as number),
+    },
+    cfx: {
+      url: process.env.RPC_URL,
+      accounts: [PRIVATE_KEY],
+      chainId: Number(process.env.NETWORK_ID as unknown as number),
     }
   },
   abiExporter: {

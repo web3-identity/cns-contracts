@@ -10,7 +10,7 @@ async function main() {
   
   // @ts-ignore
   const DummyOracle = await conflux.getContractFactory('CFXPriceOracle');
-  const cfxPrice = BigInt(0.05 * 1e8);
+  const cfxPrice = BigInt(0.0001 * 1e8);
   const receipt1 = await DummyOracle.constructor(cfxPrice).sendTransaction({
     from: account.address,
   }).executed();
