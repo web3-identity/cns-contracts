@@ -16,7 +16,6 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {INameWhitelist} from "./INameWhitelist.sol"; // CNS UPDATE
 import {IFiatPriceOracle} from "./IFiatPriceOracle.sol"; // CNS UPDATE
-import {ICNameWrapper} from '../wrapper/ICNameWrapper.sol'; // CNS UPDATE
 
 error CommitmentTooNew(bytes32 commitment);
 error CommitmentTooOld(bytes32 commitment);
@@ -51,7 +50,7 @@ contract Web3RegistrarController is
     uint256 public minCommitmentAge;
     uint256 public maxCommitmentAge;
     ReverseRegistrar public reverseRegistrar;
-    ICNameWrapper public nameWrapper;  // CNS UPDATE
+    INameWrapper public nameWrapper;  // CNS UPDATE
 
     mapping(bytes32 => uint256) public commitments;
 
@@ -71,8 +70,7 @@ contract Web3RegistrarController is
     );
 
     INameWhitelist public nameWhitelist; // CNS UPDATE
-    uint256 private validLen = 4; // CNS UPDATE
-    uint256 private label45Quota = 50000; // CNS UPDATE
+    uint256 private validLen = 5; // CNS UPDATE
 
     // CNS UPDATE
     enum LabelStatus {
@@ -92,7 +90,7 @@ contract Web3RegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        ICNameWrapper _nameWrapper
+        INameWrapper _nameWrapper
     ) {
         _setupRole(ADMIN_ROLE, msg.sender);
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -105,7 +103,7 @@ contract Web3RegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        ICNameWrapper _nameWrapper,
+        INameWrapper _nameWrapper,
         address _admin
     ) public initializer {
         _setupRole(ADMIN_ROLE, _admin);
@@ -119,7 +117,7 @@ contract Web3RegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        ICNameWrapper _nameWrapper
+        INameWrapper _nameWrapper
     ) internal {
         if (_maxCommitmentAge <= _minCommitmentAge) {
             revert MaxCommitmentAgeTooLow();
@@ -135,8 +133,7 @@ contract Web3RegistrarController is
         maxCommitmentAge = _maxCommitmentAge;
         reverseRegistrar = _reverseRegistrar;
         nameWrapper = _nameWrapper;
-        validLen = 4;
-        label45Quota = 50000;
+        validLen = 5;
     }
 
     function rentPrice(string memory name, uint256 duration)
@@ -433,9 +430,6 @@ contract Web3RegistrarController is
         if (!available(_label)) {
             return LabelStatus.Registered;
         }
-        if ((_label.strlen() == 4 || _label.strlen() == 5) && nameWrapper.label45Count() >= label45Quota) {
-            return LabelStatus.SoldOut;
-        }
         return LabelStatus.Valid;
     }
 
@@ -495,12 +489,6 @@ contract Web3RegistrarController is
     function setValidLen(uint256 _len) public onlyRole(ADMIN_ROLE) {
         require(_len > 1, "minimal len is 2");
         validLen = _len;
-    }
-
-    // CNS UPDATE
-    function setLabel45Quota(uint256 _quota) public onlyRole(ADMIN_ROLE) {
-        require(_quota > label45Quota, "invalid quota");
-        label45Quota = _quota;
     }
 
     // CNS UPDATE

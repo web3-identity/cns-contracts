@@ -62,8 +62,6 @@ contract NameWrapper is
     // owner => web3 node set
     // Update places: _mint, _burn, transfer
     mapping(address => EnumerableSet.Bytes32Set) private _userNodes;
-    uint256 public tokenCount;
-    uint256 public label45Count; // count of label lengh is  4-5
 
     constructor(
         ENS _ens,
@@ -944,10 +942,6 @@ contract NameWrapper is
 
         // CNS UPDATE: update userNodes 
         _userNodes[owner].add(node);
-        tokenCount += 1;
-        if (names[node].length == 11 || names[node].length == 12) {
-            label45Count += 1;
-        }
     }
 
     function _wrap(
@@ -1193,10 +1187,6 @@ contract NameWrapper is
         (address oldOwner, ,) = getData(tokenId);
         bytes32 node = bytes32(tokenId);
         _userNodes[oldOwner].remove(node);
-        tokenCount -= 1;
-        if (names[node].length == 11 || names[node].length == 12) {
-            label45Count -= 1;
-        }
 
         super._burn(tokenId);
     }
