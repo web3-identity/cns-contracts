@@ -38,6 +38,20 @@ Check detail in [NameWrapper](./NameWrapper.md).
 
 ## Deployment
 
+### Conflux Core Mainnet
+
+```shell
+ENS_REGISTRY=cfx:acemru7fu1u8brtyn3hrtae17kbcd4pd9uwbspvnnm
+REVERSE_REGISTRAR=cfx:acfarpzehntpre0thg8x7dp0ajw4ms328ps634v1zk
+BASE_REGISTRAR=cfx:acg08bujp0kmsup1zk11c9mad7zd6648eybmv2kbha
+NAME_WRAPPER=cfx:acdpx5pyc9xkry6x84bdstvt52grxpj69uadprjs7p
+WEB3_CONTROLLER=cfx:ace0bgf408jt5kmw34k3mxx03tpsfpt8by010ma8ww
+PUBLIC_RESOLVER=cfx:acasaruvgf44ss67pxzfs1exvj7k2vyt863f72n6up
+FIFS_REGISTRAR=cfx:achbbpdja6c3f4s6efuh7ckr85p5pf8xheet9nucz0
+REVERSE_RECORDS=cfx:achsgpgs5dgpmgpj2zd87apj6js33c07pjth6k33mj
+CNS_UTIL=cfx:ace8hzgt9rcwejnh7dw1861r881g9rcgyy04r298hn
+```
+
 ### Conflux Core Testnet
 
 Deployed at 2023.2.9
@@ -45,13 +59,9 @@ Deployed at 2023.2.9
 ENS_REGISTRY=cfxtest:acemru7fu1u8brtyn3hrtae17kbcd4pd9u2m761bta
 REVERSE_REGISTRAR=cfxtest:acfarpzehntpre0thg8x7dp0ajw4ms328pe1mm17vd
 BASE_REGISTRAR=cfxtest:acg08bujp0kmsup1zk11c9mad7zd6648eynbcjtndm
-STATIC_METADATA_SERVICE=cfxtest:acabg4pkfentf6pugssc10e3jdvn6r4u2pz27nwne3
 NAME_WRAPPER=cfxtest:acapc3y2j7atme3bawvaex18hs36tn40uu5h6j3mtu
-CFX_PRICE_ORACLE=cfxtest:acd5ganc3tmc8p2935u1rbz6fp207gm59ybd8rxxnx
-STABLE_ORACLE=cfxtest:acdeywdrjb48ast7e4gug5pv3t30t4h1wam6mnggs6
 WEB3_CONTROLLER=cfxtest:aca1858y5a9fnyx9rxd1c9knr517cd0e6afzzhgj01
 PUBLIC_RESOLVER=cfxtest:acbfyf69zaxau5a23w10dgyrmb0hrz4p9pewn6sejp
-NAME_WHITELIST=cfxtest:acex1d5fm2tcd2s9wd7p1ak9t47advbwvud2yhjw3v
 FIFS_REGISTRAR=cfxtest:achbbpdja6c3f4s6efuh7ckr85p5pf8xhesep50jv6
 REVERSE_RECORDS=cfxtest:acgddsj3kah2f4f4c6959bvc4732f4juyj90h0zmg2
 CNS_UTIL=cfxtest:aca4w63ypgup8tryphprzfcrh5kh0hpbgasb2z3s0j

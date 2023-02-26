@@ -2,6 +2,7 @@ import hre from 'hardhat';
 import { logReceipt } from '../utils';
 import path from 'path';
 import fs from 'fs';
+import { sign } from 'js-conflux-sdk';
 const {
     conflux,    // The Conflux instance
 } = hre;
@@ -24,9 +25,15 @@ async function feedReservedNames(nameWhitelist: any, account: any) {
     console.log('Reserved word length', reserved.length);
     const step = 1000
     for(let i = 0; i < reserved.length; i += step) {
-        let receipt = await nameWhitelist.setSpecialNameBatch(reserved.slice(i, i + step), true).sendTransaction({
+        const names = reserved.slice(i, i + step).map(keccak);
+        let receipt = await nameWhitelist.setSpecialNameBatch(names, true).sendTransaction({
             from: account.address
         }).executed();
         logReceipt(receipt, `Set Reserved Names ${i} - ${i + step}`);
     }
+}
+
+function keccak(str: string) {
+    const hash = sign.keccak256(Buffer.from(str))
+    return '0x' + hash.toString('hex');
 }

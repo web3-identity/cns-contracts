@@ -16,9 +16,14 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
     },
     cfxtest: {
-      url: process.env.RPC_URL,
+      url: 'https://test.confluxrpc.com',
       accounts: [PRIVATE_KEY],
-      chainId: Number(process.env.NETWORK_ID as unknown as number),
+      chainId: 1,
+    },
+    cfx: {
+      url: 'https://main.confluxrpc.com',
+      accounts: [PRIVATE_KEY],
+      chainId: 1029,
     }
   },
   abiExporter: {
