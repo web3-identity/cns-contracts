@@ -1056,7 +1056,7 @@ contract NameWrapper is
         bytes32 labelhash = keccak256(bytes(label));
         bytes32 node = _makeNode(ETH_NODE, labelhash);
         // hardcode dns-encoded eth string for gas savings
-        bytes memory name = _addLabel(label, "\x03eth\x00");
+        bytes memory name = _addLabel(label, "\x04web3\x00");  // CNS UPDATE
         names[node] = name;
 
         _wrap(
