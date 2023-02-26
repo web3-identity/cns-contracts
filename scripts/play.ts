@@ -31,7 +31,7 @@ async function main() {
     const [account] = await conflux.getSigners();
     console.log('Account', account.address);
 
-    // await purchaseDomain(account, 'jiuhuaw');
+    // await purchaseDomain(account, 'minix');
 
     // await claimReverseDomain(account, 'jihuaw');
 
@@ -43,68 +43,15 @@ async function main() {
 
     // await setWhitelist(account);
 
-    // @ts-ignore
-    const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
-    let receipt = await Web3Controller.addAdmin('cfxtest:aangm324bxnw9umenr26sg0yf0ek4fv2bun05unabb').sendTransaction({
-        from: account.address
-    }).executed();
-    logReceipt(receipt, 'grant role');
-
-    /* await Web3Controller.setPriceOracle('cfxtest:acd51b7m6gufh1przxthzakrnm9w3g544ykhbt3pv5').sendTransaction({
-        from: account.address
-    }).executed(); */
-
-    /* await Web3Controller.setCommitmentAge(10, 600).sendTransaction({
-        from: account.address
-    }).executed(); */
-
-    
-    /* await Web3Controller.setLabel45Quota(50000).sendTransaction({
-        from: account.address,
-    }).executed(); */
-
-    /* await Web3Controller.setValidLen(5).sendTransaction({
-        from: account.address,
-    }).executed(); */
-
-    
-    // const status = await Web3Controller.labelStatus('1234');
-    // console.log(status);
-
-    /* const txs = await Web3Controller.setValidLen(4).sendTransaction({
-        from: account.address,
-    }).executed(); */
-
-    // const status = await Web3Controller.valid('12');
-    // console.log(status);
-
-    // @ts-ignore
-    /* const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
-
-    // @ts-ignore
-    let fiatpricesForOneYear = [10000n, 6100n, 3600n, 600n, 30n];  // cny
-    for(let i = 0; i < fiatpricesForOneYear.length; i++) {
-        fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e8) / (3600n * 24n * 365n);
-        if (i === 4) fiatpricesForOneYear[i] = 0n;
-    }
-    console.log(fiatpricesForOneYear);
-    const receipt2 = await StablePriceOracle.setFiatRentPrice(fiatpricesForOneYear).sendTransaction({
-        from: account.address,
-    }).executed();
-    logReceipt(receipt2, 'StablePriceOracle setFiatPrice'); */
-
-    // let p1 = await StablePriceOracle.fiatPrice5Letter();
-    // console.log(p1);
-
-    // const price = await Web3Controller.rentPriceInFiat('hi', ONE_YEAR);
-    // console.log(price);
-    
     // await setMetadataUrlService();
 
+    await web3Controller(account);
+
     // @ts-ignore
-    // const baseRegistrar = await conflux.getContractAt('BaseRegistrarImplementation', BASE_REGISTRAR);
-    // let owner = await baseRegistrar.ownerOf(namehash('hexxxhexdsssxxx.web3'));
-    // console.log(owner);
+    // let nameWhitelist = await conflux.getContractAt('NameWhitelist', process.env.NAME_WHITELIST);
+    // let val = await nameWhitelist.isReserved('mini');
+    // console.log(val);
+
 }
 
 main().catch(console.log);
@@ -234,7 +181,7 @@ async function nameWrapper() {
     // @ts-ignore
     const contract = await conflux.getContractAt('NameWrapper', NAME_WRAPPER);
 
-    let name = 'heyman2.web3';
+    let name = 'jiuhuaw.web3';
     let node = namehash(name);
     
     const owner = await contract.ownerOf(node);
@@ -253,6 +200,11 @@ async function nameWrapper() {
     //     from: account.address
     // }).executed();
     // console.log(receipt);
+
+    /* let receipt = await contract.safeTransferFrom(account.address, 'cfxtest:aak7fsws4u4yf38fk870218p1h3gxut3ku00u1k1da', node, 1, '0x').sendTransaction({
+        from: account.address
+    }).executed();
+    console.log(receipt); */
 }
 
 async function setWhitelistContract(account: any, whiteList: string) {
@@ -293,4 +245,82 @@ async function setMetadataUrlService() {
         from: account.address,
     }).executed();
     logReceipt(receipt2, 'NameWrapper.setMetadataService');
+}
+
+async function web3Controller(account: any) {
+    // @ts-ignore
+    const Web3Controller = await conflux.getContractAt('Web3RegistrarController', WEB3_CONTROLLER);
+    /* let receipt = await Web3Controller.setNameWhitelist(process.env.NAME_WHITELIST).sendTransaction({
+        from: account.address
+    }).executed();
+
+    logReceipt(receipt, 'set name whitelist'); */
+
+    
+    /* const addr = 'cfx:aangm324bxnw9umenr26sg0yf0ek4fv2bub7jarmfn';
+    let receipt = await Web3Controller.addAdmin(addr).sendTransaction({
+        from: account.address
+    }).executed();
+    logReceipt(receipt, 'grant role');
+    const adminRole = await Web3Controller.ADMIN_ROLE();
+
+    const hasRole = await Web3Controller.hasRole(adminRole, addr);
+    console.log(hasRole); */
+
+    /* await Web3Controller.setPriceOracle('cfxtest:acd51b7m6gufh1przxthzakrnm9w3g544ykhbt3pv5').sendTransaction({
+        from: account.address
+    }).executed(); */
+
+    /* await Web3Controller.setCommitmentAge(10, 600).sendTransaction({
+        from: account.address
+    }).executed(); */
+
+    
+    /* await Web3Controller.setLabel45Quota(50000).sendTransaction({
+        from: account.address,
+    }).executed(); */
+
+    /* await Web3Controller.setValidLen(5).sendTransaction({
+        from: account.address,
+    }).executed(); */
+
+    // const status = await Web3Controller.labelStatus('1234');
+    // console.log(status);
+
+    /* const txs = await Web3Controller.setValidLen(4).sendTransaction({
+        from: account.address,
+    }).executed(); */
+
+    // const status = await Web3Controller.valid('12');
+    // console.log(status);
+
+    // const price = await Web3Controller.rentPriceInFiat('hi', ONE_YEAR);
+    // console.log(price);
+}
+
+async function stalePriceOracle() {
+    // @ts-ignore
+    /* const StablePriceOracle = await conflux.getContractAt('contracts/web3registrar/StablePirceOracles.sol:StablePriceOracle', STABLE_ORACLE);
+
+    // @ts-ignore
+    let fiatpricesForOneYear = [10000n, 6100n, 3600n, 600n, 30n];  // cny
+    for(let i = 0; i < fiatpricesForOneYear.length; i++) {
+        fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e8) / (3600n * 24n * 365n);
+        if (i === 4) fiatpricesForOneYear[i] = 0n;
+    }
+    console.log(fiatpricesForOneYear);
+    const receipt2 = await StablePriceOracle.setFiatRentPrice(fiatpricesForOneYear).sendTransaction({
+        from: account.address,
+    }).executed();
+    logReceipt(receipt2, 'StablePriceOracle setFiatPrice'); */
+
+    // let p1 = await StablePriceOracle.fiatPrice5Letter();
+    // console.log(p1);
+}
+
+async function baseRegistrar() {
+    // @ts-ignore
+    // const baseRegistrar = await conflux.getContractAt('BaseRegistrarImplementation', BASE_REGISTRAR);
+    // let owner = await baseRegistrar.ownerOf(namehash('hexxxhexdsssxxx.web3'));
+    // console.log(owner);
 }
