@@ -26,6 +26,7 @@ contract StablePriceOracle is IPriceOracle, Ownable {
     uint256 public price5Letter;
 
     // Rent in fiat base price units by length
+    // The decimal length is 18
     uint256 public fiatPrice1Letter;
     uint256 public fiatPrice2Letter;
     uint256 public fiatPrice3Letter;

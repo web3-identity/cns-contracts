@@ -33,7 +33,7 @@ async function main() {
     const stablePriceOracle = await conflux.getContractAt(contractPath, receipt.contractCreated);
     let fiatpricesForOneYear = [10000n, 6100n, 3600n, 600n, 30n];  // cny
     for(let i = 0; i < fiatpricesForOneYear.length; i++) {
-        fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e8) / (3600n * 24n * 365n);
+        fiatpricesForOneYear[i] = fiatpricesForOneYear[i] * BigInt(1e18) / (3600n * 24n * 365n);
     }
     const receipt2 = await stablePriceOracle.setFiatRentPrice(fiatpricesForOneYear).sendTransaction({
         from: account.address,
