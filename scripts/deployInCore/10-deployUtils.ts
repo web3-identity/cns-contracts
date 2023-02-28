@@ -24,6 +24,14 @@ async function main() {
   }).executed();
   
   logReceipt(receipt1, 'CNSUtil');
+
+  // @ts-ignore
+  const ReverseRecords = await conflux.getContractFactory('Multicall');
+  const receipt2 = await ReverseRecords.constructor().sendTransaction({
+    from: account.address,
+  }).executed();
+  
+  logReceipt(receipt2, 'Multicall');
 }
 
 main().catch(console.log);

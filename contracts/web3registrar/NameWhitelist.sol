@@ -23,7 +23,7 @@ contract NameWhitelist is Ownable, INameWhitelist {
 
     bytes constant ZERO_WIDTH_SPACE = hex"e2808b";
 
-    string constant CHAR_WHITE_LIST = "abcdefghijklmnopqrstuvwxyz0123456789_"; // ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    string constant CHAR_WHITE_LIST = "abcdefghijklmnopqrstuvwxyz0123456789-"; // ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
     string constant EMOJI_WHITE_LIST = unicode"✅";
 
