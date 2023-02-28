@@ -90,3 +90,8 @@ export function loadPrivateKey() {
     return format.hex(privateKeyBuf);
   }
 }
+
+export function keccak(str: string) {
+    const hash = sign.keccak256(Buffer.from(str))
+    return '0x' + hash.toString('hex');
+}

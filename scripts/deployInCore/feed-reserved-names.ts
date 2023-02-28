@@ -2,7 +2,7 @@ import hre from 'hardhat';
 import { logReceipt } from '../utils';
 import path from 'path';
 import fs from 'fs';
-import { sign } from 'js-conflux-sdk';
+import { keccak } from '../utils';
 const {
     conflux,    // The Conflux instance
 } = hre;
@@ -33,7 +33,3 @@ async function feedReservedNames(nameWhitelist: any, account: any) {
     }
 }
 
-function keccak(str: string) {
-    const hash = sign.keccak256(Buffer.from(str))
-    return '0x' + hash.toString('hex');
-}
